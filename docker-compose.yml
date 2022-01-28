@@ -1,0 +1,27 @@
+version: "3"
+services:
+  dytt8:
+    build: .
+    container_name: fin
+    logging: 
+      options: 
+        max-size: "10m"
+    volumes: 
+      - /www/fin:/app/fin
+      - /www/schema:/app/schema
+      - /www/data:/data
+    working_dir: /app/fin
+    environment: 
+      - FIN_SMTP_PWD=${SMTP_PWD}
+      - FIN_DINGTALK_TOKEN=${DINGTALK_TOKEN}
+      - FIN_DINGTALK_SECRET=${DINGTALK_SECRET}
+      - FIN_MYSQL_USER=${MYSQL_USER}
+      - FIN_MYSQL_DB=${MYSQL_DB}
+      - FIN_MYSQL_PWD=${MYSQL_PWD}
+    networks:
+      - fin
+    command: python test.py
+
+networks: 
+  fin:
+    external: true
