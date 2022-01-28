@@ -24,4 +24,3 @@ services:
 
 networks: 
   fin:
-    external: true
