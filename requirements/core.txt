@@ -1,0 +1,6 @@
+akshare
+sqlalchemy
+mysql-connector-python
+arrow
+pybeans
+fire

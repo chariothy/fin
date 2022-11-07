@@ -20,7 +20,7 @@ services:
       - FIN_MYSQL_PWD=${MYSQL_PWD}
     networks:
       - fin
-    command: python test.py
+    command: pip install -U akshare && python test.py
 
 networks: 
   fin:

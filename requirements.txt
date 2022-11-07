@@ -1,3 +1,0 @@
-akshare
-sqlalchemy
-mysql-connector-python
