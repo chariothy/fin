@@ -1,2 +1,2 @@
 -r core.txt
-dtale
+pyecharts

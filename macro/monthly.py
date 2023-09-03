@@ -30,11 +30,11 @@ def save(df: DataFrame, key: str, map: dict):
         .first()
     
     if latest_db:
-        fu.D('Found latest date for ', key, latest_db.date)
+        fu.debug('Found latest date for ', key, latest_db.date)
         new_df = df[df.date > latest_db.date]
-        fu.D(new_df)
+        fu.debug(new_df)
     else:
-        fu.D('No ', key, 'yet')
+        fu.debug('No ', key, 'yet')
         new_df = df
 
     for index, row in new_df.iterrows():

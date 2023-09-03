@@ -1,6 +1,7 @@
 akshare
-sqlalchemy
-mysql-connector-python
-arrow
-pybeans
+pybeans>=1.8.0
+pandas
+numpy
 fire
+tables
+rich

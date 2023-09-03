@@ -1,7 +1,7 @@
 # For spiders project
 # @version 1.0
 
-FROM chariothy/akshare:3.10
+FROM chariothy/pydata:latest
 LABEL maintainer="chariothy@gmail.com"
 
 WORKDIR /app
