@@ -7,3 +7,4 @@ tables
 rich
 sqlalchemy
 psycopg2
+pyecharts
