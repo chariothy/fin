@@ -5,3 +5,5 @@ numpy
 fire
 tables
 rich
+sqlalchemy
+psycopg2

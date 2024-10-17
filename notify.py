@@ -52,12 +52,6 @@ DINGTAIL_BODY = """## {pusher}推送项目[{rep_name}]({url}){result}\n
 {stderr_li}
 """
 
-#dt_data = data.copy()
-#dt_data['comment_li'] = '\n'.join((f'- {c}' for c in data['comments']))
-#dt_data['command_li'] = '\n'.join((f'- {c}' for c in data['commands']))
-#dt_data['stdout_li'] = '\n'.join((f'- {c}' for c in data['stdout_list']))
-#dt_data['stderr_li'] = '\n'.join((f'- {c}' for c in data['stderr_list']))
-
 def notify_by_ding_talk(dingtalk_config: dict, title: str, text: str):
     """发消息给钉钉机器人
     """

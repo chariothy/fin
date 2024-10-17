@@ -1,6 +1,6 @@
 CONFIG = {
     'log': {
-        'level': 'DEBUG',   # 与log库的level一致，包括DEBUG, INFO, ERROR
+        'level': 'INFO',    # 与log库的level一致，包括DEBUG, INFO, ERROR
                             #   DEBUG   - Enable stdout, file, mail （如果在dest中启用）
                             #   INFO    - Enable file, mail         （如果在dest中启用）
                             #   ERROR   - Enable mail               （如果在dest中启用）
@@ -26,11 +26,11 @@ CONFIG = {
         'user': '15050506668@163.com',
         'pwd': '123456'
     },
-    'mysql': {
-        'host': 'mysql',
-        'port': 3306,
-        'db': 'website',
-        'user': 'root',
+    'db': {
+        'host': 'postgres',
+        'port': 5432,
+        'db': 'web',
+        'user': 'henry',
         'pwd': 'pwd'
     },
     'notify': {                         # 通知方式，会对列表中列出的方式进去通知，列表为空则不做任何通知
@@ -41,5 +41,5 @@ CONFIG = {
         'token': 'DINGTALK_BOT_TOKEN',
         'secret' : 'DINGTALK_BOT_SECRET' # 钉钉机器人的三种验证方式之一为密钥验证
     },
-    'tmp_dir': './data/'
+    'index': ('H30269','H30089','931446','000510','931052')
 }

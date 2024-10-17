@@ -2,7 +2,8 @@ import os
 from datetime import datetime as dt
 from pybeans import AppTool
 import json
-import time
+import datetime
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -20,29 +21,49 @@ class FinUtil(AppTool):
         self._session = None
 
 
-    @property
-    def session(self):
-        """
-        Lazy loading
-        """
-        if self._session:
-            return self._session
-        assert(self['mysql'] is not None)
-        DB_CONN = 'mysql+mysqlconnector://{c[user]}:{c[pwd]}@{c[host]}:{c[port]}/{c[db]}?ssl_disabled=True' \
-            .format(c=self['mysql'])
-        engine = create_engine(
-            DB_CONN, 
-            pool_size=20, 
-            max_overflow=0, 
-            echo=self['log.sql'] == 1,
-            json_serializer=lambda obj: json.dumps(obj, ensure_ascii=False))
-        self._session = sessionmaker(bind=engine)()
-        return self._session
-
-
     def ding(self, title: str, text: str):
         result = notify_by_ding_talk(self['dingtalk'], title, text)
         self.D(result)
+        
+
+    def dict_to_where(self, wheres: tuple, row) -> str:
+        clauses = []
+        for key in wheres:
+            value = row[key]
+            if isinstance(value, str):
+                clauses.append(f"{key} = '{value}'")
+            elif isinstance(value, (int, float)):
+                clauses.append(f"{key} = {value}")
+            elif isinstance(value, datetime.date):
+                clauses.append(f"{key} = '{value.strftime('%Y-%m-%d')}'")
+            else:
+                raise ValueError(f"Unsupported data type for key: {key}, value: {value}")
+        return " AND ".join(clauses)
+        
+        
+    def save(self, df, table, wheres, dtype=None):
+        db = self['db']
+        engine = create_engine(f"postgresql+psycopg2://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}")
+        # 将数据写入数据库
+        inserted = 0
+        with engine.connect() as connection:
+            for _, row in df.iterrows():
+                where = self.dict_to_where(wheres, row)
+                # 查询是否已经存在相同的code和date组合
+                query = f"SELECT COUNT(*) FROM {table} WHERE {where}"
+                result = connection.execute(query)
+                count = result.scalar()
+
+                if count == 0:
+                    try:
+                        # 将数据写入数据库
+                        row.to_frame().T.to_sql(table, engine, if_exists='append', index=False, dtype=dtype)
+                        inserted += 1
+                        self.debug(f"Data for {where} inserted successfully.")
+                    except Exception as e:
+                        self.fatal(f"Error inserting data for {where} into the database:")
+        return inserted
+
         
         
 def parse_date(mode: str, date_str: str) -> str:
@@ -102,4 +123,4 @@ def parse_ymd(date_str: str) -> str:
     return parse_date('YMD', date_str)
         
         
-fu = FinUtil('fin')
+fin = FinUtil('fin')

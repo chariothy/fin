@@ -8,19 +8,18 @@ services:
         max-size: "10m"
     volumes: 
       - /www/fin:/app/fin
-      - /www/schema:/app/schema
-      - /www/data:/data
     working_dir: /app/fin
     environment: 
       - FIN_SMTP_PWD=${SMTP_PWD}
       - FIN_DINGTALK_TOKEN=${DINGTALK_TOKEN}
       - FIN_DINGTALK_SECRET=${DINGTALK_SECRET}
-      - FIN_MYSQL_USER=${MYSQL_USER}
-      - FIN_MYSQL_DB=${MYSQL_DB}
-      - FIN_MYSQL_PWD=${MYSQL_PWD}
+      - FIN_DB_HOST=${PGSQL_HOST}
+      - FIN_DB_USER=${PGSQL_USER}
+      - FIN_DB_DB=${PGSQL_DB}
+      - FIN_DB_PWD=${PGSQL_PWD}
     networks:
       - fin
-    command: pip install -U akshare && python test.py
+    command: pip install -U akshare && python tasks.py
 
 networks: 
   fin:

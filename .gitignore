@@ -4,6 +4,7 @@
 *.json
 *.pkl
 data/*
+.chat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

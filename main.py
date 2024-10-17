@@ -1,6 +1,4 @@
-import fire
-from macro.monthly import *
-
+from index import *
 
 if __name__ == "__main__":
-    fire.Fire()
+    value()
