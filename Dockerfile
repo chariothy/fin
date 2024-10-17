@@ -11,6 +11,6 @@ COPY ./requirements.txt .
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo 'Asia/Shanghai' > /etc/timezone \
   && pip install -U pip \
-  && pip install --no-cache-dir -r ./requirements.txt
+  && pip install --no-cache-dir -r ./requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 CMD [ "python" ]
