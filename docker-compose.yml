@@ -19,7 +19,7 @@ services:
       - FIN_DB_PWD=${PGSQL_PWD}
     networks:
       - fin
-    command: pip install -U akshare && python tasks.py
+    command: pip install -U akshare && python main.py
 
 networks: 
   fin:
