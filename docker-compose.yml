@@ -1,6 +1,6 @@
 version: "3"
 services:
-  dytt8:
+  fin:
     build: .
     container_name: fin
     logging: 
