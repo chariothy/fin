@@ -1,11 +1,8 @@
-import os
 from datetime import datetime as dt
 from pybeans import AppTool
-import json
 import datetime
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
 
 from notify import notify_by_ding_talk
 
@@ -43,15 +40,16 @@ class FinUtil(AppTool):
         
     def save(self, df, table, wheres, dtype=None):
         db = self['db']
-        engine = create_engine(f"postgresql+psycopg2://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}")
+        engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}")
         # 将数据写入数据库
         inserted = 0
         with engine.connect() as connection:
+            self.debug(connection)
             for _, row in df.iterrows():
                 where = self.dict_to_where(wheres, row)
                 # 查询是否已经存在相同的code和date组合
                 query = f"SELECT COUNT(*) FROM {table} WHERE {where}"
-                result = connection.execute(query)
+                result = connection.execute(text(query)) ## Must use text() for psycopg3
                 count = result.scalar()
 
                 if count == 0:
@@ -64,7 +62,6 @@ class FinUtil(AppTool):
                         self.fatal(f"Error inserting data for {where} into the database:")
         return inserted
 
-        
         
 def parse_date(mode: str, date_str: str) -> str:
     """日期解析

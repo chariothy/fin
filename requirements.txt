@@ -1,10 +1,11 @@
 akshare
-pybeans>=1.8.0
+pybeans>=1.9.0
+pyarrow
 pandas
 numpy
 fire
 tables
 rich
 sqlalchemy
-psycopg2
+psycopg[binary,pool]
 pyecharts

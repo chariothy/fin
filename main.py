@@ -1,4 +1,4 @@
-from index import *
+import index
 
 if __name__ == "__main__":
-    value()
+    index.value()
