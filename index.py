@@ -41,7 +41,7 @@ def value():
             for _, row in df.iterrows():
                 insert_stmt = insert(IndexValue).values( \
                         code=index, \
-                        date=row['日期'], \
+                        date=str(row['日期']), \
                         pe1=row['市盈率1'], \
                         pe2=row['市盈率2'], \
                         dy1=row['股息率1'], \
