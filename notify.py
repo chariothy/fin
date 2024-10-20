@@ -5,7 +5,7 @@ import hmac
 import base64
 import hashlib
 import urllib.parse
-
+from utils import fin
 
 def create_sign_for_dingtalk(secret: str):
     """
@@ -35,7 +35,8 @@ def do_notify_by_ding_talk(dingtalk_config: dict, data: dict):
     timestamp, sign = create_sign_for_dingtalk(secret)
     url += f'&timestamp={timestamp}&sign={sign}'
     
-    #APP.debug(f'钉钉机器人 数据===> {data}')
+    fin.debug('dingtalk:\n' + json.dumps(data, indent=4, ensure_ascii=False))
+
     return requests.post(url=url, headers = DINGTAIL_HEADERS, data=json.dumps(data))
 
 
@@ -52,7 +53,7 @@ DINGTAIL_BODY = """## {pusher}推送项目[{rep_name}]({url}){result}\n
 {stderr_li}
 """
 
-def notify_by_ding_talk(dingtalk_config: dict, title: str, text: str):
+def ding(title: str, text: str):
     """发消息给钉钉机器人
     """
     dt_msg = {
@@ -62,5 +63,5 @@ def notify_by_ding_talk(dingtalk_config: dict, title: str, text: str):
             'text': text
         }
     }
-    res = do_notify_by_ding_talk(dingtalk_config, dt_msg)
+    res = do_notify_by_ding_talk(fin['dingtalk'], dt_msg)
     return res.json()

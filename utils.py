@@ -3,8 +3,8 @@ from pybeans import AppTool
 import datetime
 
 from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 
-from notify import notify_by_ding_talk
 
 import re
 REG_DATE = re.compile(r'(\d{4})\D*(\d{1,2})?\D*(\d{1,2})?')
@@ -16,52 +16,26 @@ class FinUtil(AppTool):
     def __init__(self, spider_name):
         super(FinUtil, self).__init__(spider_name)
         self._session = None
+        self._engine = None
 
+    @property
+    def engine(self):
+        if self._engine is None:
+            assert(self['db'] is not None)
+            db = self['db']
+            self._engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}")
+        return self._engine
 
-    def ding(self, title: str, text: str):
-        result = notify_by_ding_talk(self['dingtalk'], title, text)
-        self.D(result)
-        
-
-    def dict_to_where(self, wheres: tuple, row) -> str:
-        clauses = []
-        for key in wheres:
-            value = row[key]
-            if isinstance(value, str):
-                clauses.append(f"{key} = '{value}'")
-            elif isinstance(value, (int, float)):
-                clauses.append(f"{key} = {value}")
-            elif isinstance(value, datetime.date):
-                clauses.append(f"{key} = '{value.strftime('%Y-%m-%d')}'")
-            else:
-                raise ValueError(f"Unsupported data type for key: {key}, value: {value}")
-        return " AND ".join(clauses)
-        
-        
-    def save(self, df, table, wheres, dtype=None):
-        db = self['db']
-        engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}")
-        # 将数据写入数据库
-        inserted = 0
-        with engine.connect() as connection:
-            self.debug(connection)
-            for _, row in df.iterrows():
-                where = self.dict_to_where(wheres, row)
-                # 查询是否已经存在相同的code和date组合
-                query = f"SELECT COUNT(*) FROM {table} WHERE {where}"
-                result = connection.execute(text(query)) ## Must use text() for psycopg3
-                count = result.scalar()
-
-                if count == 0:
-                    try:
-                        # 将数据写入数据库
-                        row.to_frame().T.to_sql(table, engine, if_exists='append', index=False, dtype=dtype)
-                        inserted += 1
-                        self.debug(f"Data for {where} inserted successfully.")
-                    except Exception as e:
-                        self.fatal(f"Error inserting data for {where} into the database:")
-        return inserted
-
+    @property
+    def session(self):
+        """
+        Lazy loading
+        """
+        if self._session:
+            return self._session
+        self._session = sessionmaker(bind=self.engine)
+        return self._session
+    
         
 def parse_date(mode: str, date_str: str) -> str:
     """日期解析

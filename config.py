@@ -42,5 +42,5 @@ CONFIG = {
         'token': env.get('DINGTALK_TOKEN', ''),
         'secret' : env.get('DINGTALK_SECRET', '') # 钉钉机器人的三种验证方式之一为密钥验证
     },
-    'index': ('H30269','H30089','931446','000510','931052')
+    'index': ('H30269','931446','000510','931052')
 }
