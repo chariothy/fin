@@ -23,6 +23,7 @@ def create_sign_for_dingtalk(secret: str):
 DINGTALK_API_URL="https://oapi.dingtalk.com/robot/send?access_token={}"
 DINGTAIL_HEADERS = {'Content-Type': 'application/json'}
 
+
 def do_notify_by_ding_talk(dingtalk_config: dict, data: dict):
     """发消息给钉钉机器人
     """
@@ -35,21 +36,21 @@ def do_notify_by_ding_talk(dingtalk_config: dict, data: dict):
     timestamp, sign = create_sign_for_dingtalk(secret)
     url += f'&timestamp={timestamp}&sign={sign}'
     
-    fin.debug('dingtalk:\n' + json.dumps(data, indent=4, ensure_ascii=False))
+    fin.debug(data)
 
     return requests.post(url=url, headers = DINGTAIL_HEADERS, data=json.dumps(data))
 
 
 # for examples:
 DINGTAIL_SUBJECT = "[GITHOOK] {pusher}推送项目{rep_name}{result}"
-DINGTAIL_BODY = """## {pusher}推送项目[{rep_name}]({url}){result}\n
-### <font color=red>COMMITS：</font>\n
+DINGTAIL_BODY = """** {pusher}推送项目[{rep_name}]({url}){result}\n
+** <font color=red>COMMITS：</font>\n
 {comment_li}\n
-### <font color=red>COMMANDS：</font>\n
+** <font color=red>COMMANDS：</font>\n
 {command_li}\n
-### <font color=red>STDOUT：</font>\n
+** <font color=red>STDOUT：</font>\n
 {stdout_li}\n
-### <font color=red>STDERR：</font>\n
+** <font color=red>STDERR：</font>\n
 {stderr_li}
 """
 

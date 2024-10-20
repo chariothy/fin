@@ -42,7 +42,7 @@ def cpi():
     save('cpi', json_data)
 
     last = macro_china_cpi_yearly_df.iloc[-1]['日期']
-    ding(f'CPI更新{last}',f'共{len(json_data)}行')
+    fin.ding(f'CPI更新{last}',f'共{len(json_data)}行')
 
 if __name__ == "__main__":
     fire.Fire()

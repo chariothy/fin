@@ -64,7 +64,7 @@ def value():
 
     fin.debug(report)
     if len(report) > 0:
-        ding(f'指数估值{report_date}', '\n'.join(report))
+        fin.ding(f'指数估值{report_date}', '\n'.join(report))
 
 if __name__ == "__main__":
     fire.Fire()

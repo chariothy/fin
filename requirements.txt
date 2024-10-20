@@ -1,5 +1,5 @@
 akshare
-pybeans>=1.9.0
+pybeans>=1.11.0
 pyarrow
 pandas
 numpy
