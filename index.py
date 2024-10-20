@@ -4,7 +4,7 @@ from sqlalchemy import String
 from utils import fin
 from notify import ding
 
-from sqlalchemy import Integer, Column, String, DECIMAL, orm, UniqueConstraint
+from sqlalchemy import Integer, Column, String, DATE, DECIMAL, orm, UniqueConstraint
 from sqlalchemy.dialects.postgresql import insert
 
 Base = orm.declarative_base()
@@ -13,7 +13,7 @@ class IndexValue(Base):
     __tablename__ ='index_value'
     id = Column(Integer, primary_key=True, autoincrement=True, comment='自增id')
     code = Column(String, comment='指数代码')
-    date = Column(String, comment='估值日期')
+    date = Column(DATE, comment='估值日期')
     pe1 = Column(DECIMAL, comment='市盈率1')
     pe2 = Column(DECIMAL, comment='市盈率2')
     dy1 = Column(DECIMAL, comment='股息率1')
@@ -41,7 +41,7 @@ def value():
             for _, row in df.iterrows():
                 insert_stmt = insert(IndexValue).values( \
                         code=index, \
-                        date=str(row['日期']), \
+                        date=row['日期'], \
                         pe1=row['市盈率1'], \
                         pe2=row['市盈率2'], \
                         dy1=row['股息率1'], \

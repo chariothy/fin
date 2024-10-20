@@ -4,7 +4,6 @@ from sqlalchemy import Column, String, orm
 from sqlalchemy.dialects.postgresql import insert, JSONB
 from utils import fin
 import numpy as np
-import json
 from notify import ding
 
 Base = orm.declarative_base()
