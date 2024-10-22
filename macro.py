@@ -92,5 +92,27 @@ def ppi():
     fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
     
     
+@fin.retry(n=3)
+def pmi():
+    '''
+    '''
+    name = 'PMI'
+    if updated(name): return
+    
+    df = ak.macro_china_pmi_yearly()
+    fin.debug(df)
+    df.loc[:, '日期'] = df['日期'].astype(str)
+    json_data = df[['日期', '今值', '预测值', '前值']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    save(name, json_data)
+
+    last = df.iloc[-1]['日期']
+    fin.info(f'"{name}"更新到{last}')
+    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    
+    
 if __name__ == "__main__":
     fire.Fire()
