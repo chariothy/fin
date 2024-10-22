@@ -6,6 +6,7 @@ from utils import fin
 import numpy as np
 from notify import ding
 from datetime import date
+import re
 
 # 获取当前日期
 today = date.today()
@@ -110,6 +111,53 @@ def pmi():
     save(name, json_data)
 
     last = df.iloc[-1]['日期']
+    fin.info(f'"{name}"更新到{last}')
+    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    
+
+@fin.retry(n=3)
+def money():
+    '''
+    '''
+    name = 'MONEY'
+    if updated(name): return
+    
+    df = ak.macro_china_money_supply()
+    df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})\D+(\d{2})\D+', r'\1-\2', x))
+    fin.debug(df)
+    df.info()
+    json_data = df[['月份', '货币和准货币(M2)-同比增长', '货币(M1)-同比增长']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    save(name, json_data)
+
+    last = df.iloc[-1]['月份']
+    fin.info(f'"{name}"更新到{last}')
+    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    
+    
+
+@fin.retry(n=3)
+def retail():
+    '''
+    '''
+    name = 'RETAIL'
+    if updated(name): return
+    
+    df = ak.macro_china_consumer_goods_retail()
+    df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})\D+(\d{2})\D+', r'\1-\2', x))
+    fin.debug(df)
+    df.info()
+    json_data = df[['月份', '同比增长']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    save(name, json_data)
+
+    last = df.iloc[-1]['月份']
     fin.info(f'"{name}"更新到{last}')
     fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
     

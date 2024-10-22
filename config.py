@@ -25,7 +25,8 @@ CONFIG = {
         'host': 'smtp.163.com',
         'port': 25,
         'user': '15050506668@163.com',
-        'pwd': env.get('SMTP_PWD', '123456')
+        'pwd': env.get('SMTP_PWD', '123456'),
+        'type': 'ssl' # None for non-ssl
     },
     'db': {
         'host': env.get('PGSQL_HOST', 'postgres'),
