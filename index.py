@@ -3,10 +3,13 @@ import akshare as ak
 from sqlalchemy import String
 from utils import fin
 from notify import ding
+from datetime import date
 
-from sqlalchemy import Integer, Column, String, DATE, DECIMAL, orm, UniqueConstraint
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import orm, Integer, Column, String, DATE, DECIMAL, UniqueConstraint, select
+from sqlalchemy.dialects.postgresql import insert, JSONB
 
+# 获取当前日期
+today = date.today()
 Base = orm.declarative_base()
 
 class IndexValue(Base):
@@ -22,10 +25,37 @@ class IndexValue(Base):
     __table_args__ = (
         UniqueConstraint('code', 'date', name='uix_code_date'),
     )
-        
-Base.metadata.create_all(fin.engine) 
+
+class IndexBase(Base):
+    __tablename__ ='index_base'
+    code = Column(String, primary_key=True, comment='指数代码')
+    data = Column(JSONB, comment='JSON数据')
+    updated_at = Column(DATE, comment='更新日期')
+       
+Base.metadata.create_all(fin.engine) ## Must after orm class
     
-    
+
+def updated(code):
+    '''
+    检查当日是否已经更新
+    '''
+    # 构建查询语句
+    stmt = select(IndexBase).where(IndexBase.code == code)
+    with fin.session() as sess:
+        # 执行查询
+        result = sess.scalars(stmt).one_or_none()
+        if result is None:
+            stmt = insert(IndexBase).values(code=code, data={}, updated_at=today)
+            with fin.session() as sess:
+                sess.execute(stmt)                            
+                sess.commit()
+        elif result.updated_at == today:
+            fin.info(f'"{code}"已是最新')
+            return True
+    return False
+
+
+@fin.retry(n=3)
 def value():
     '''
     PE - 市盈率
@@ -34,6 +64,8 @@ def value():
     report = []
     report_date = None
     for index in fin['index']:
+        if updated(index): continue
+        
         df = ak.stock_zh_index_value_csindex(symbol=index)
         fin.debug(df)
         
@@ -60,6 +92,8 @@ def value():
         index_name = df.iloc[0]["指数中文简称"]
         delta_pe = cur_pe - last_pe
         delta_dy = cur_dy - last_dy
+        
+        fin.info(f'"{index_name}"更新到{report_date}')
         report.append(f'- {index_name} PE:{cur_pe}({delta_pe:+.2f}), 股息率:{cur_dy}({delta_dy:+.2f})')
 
     fin.debug(report)
