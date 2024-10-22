@@ -18,30 +18,30 @@ CONFIG = {
         'sql': 1
     },
     'mail': {
-        'from': 'Henry TIAN <15050506668@163.com>',
+        'from': env.get('MAIL_FROM', 'Henry TIAN <6314849@qq.com>'),
         'to': 'Henry TIAN <6314849@qq.com>'
     },
     'smtp': {
-        'host': 'smtp.163.com',
-        'port': 25,
-        'user': '15050506668@163.com',
+        'host': env.get('SMTP_HOST', 'smtp.163.com'),
+        'port': env.get('SMTP_PORT', 465),
+        'user': env.get('SMTP_USER', '15050506668@163.com'),
         'pwd': env.get('SMTP_PWD', '123456'),
-        'type': 'ssl' # None for non-ssl
+        'type': env.get('SMTP_TYPE', 'ssl')
     },
     'db': {
         'host': env.get('PGSQL_HOST', 'postgres'),
-        'port': 5432,
-        'db': 'web',
+        'port': env.get('PGSQL_PORT', 5432),
+        'db': env.get('PGSQL_DB', 'web'),
         'user': env.get('PGSQL_USER', 'henry'),
         'pwd': env.get('PGSQL_PWD', '123456')
-    },
-    'notify': {                         # 通知方式，会对列表中列出的方式进去通知，列表为空则不做任何通知
-        'mail': 1,                         # 通过邮件方式通知，需要配置'mail'和'smtp'
-        'dingtalk': 1                      # 通过钉钉机器人[http://dwz.win/MqK]通知，需要配置'dingtalk'
     },
     'dingtalk': {                       # 通过钉钉机器人发送通知，具体请见钉钉机器人文档
         'token': env.get('DINGTALK_TOKEN', ''),
         'secret' : env.get('DINGTALK_SECRET', '') # 钉钉机器人的三种验证方式之一为密钥验证
+    },
+    'notify': {                         # 通知方式，会对列表中列出的方式进去通知，列表为空则不做任何通知
+        'mail': 1,                         # 通过邮件方式通知，需要配置'mail'和'smtp'
+        'dingtalk': 1                      # 通过钉钉机器人[http://dwz.win/MqK]通知，需要配置'dingtalk'
     },
     'index': ('H30269','931446','000510','931052')
 }
