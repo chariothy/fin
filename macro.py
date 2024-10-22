@@ -43,7 +43,7 @@ def updated(name):
         result = sess.scalars(stmt).one_or_none()
         # 检查日期
         if result is not None and result.updated_at == today:
-            fin.info('"CPI"已是最新')
+            fin.info(f'"{name}"已是最新')
             return True
     return False
 
@@ -52,23 +52,45 @@ def updated(name):
 def cpi():
     '''
     '''
-    if updated('cpi'): return
+    name = 'CPI'
+    if updated(name): return
     
-    macro_china_cpi_yearly_df = ak.macro_china_cpi_yearly()
-    fin.debug(macro_china_cpi_yearly_df)
-    macro_china_cpi_yearly_df.loc[:, '日期'] = macro_china_cpi_yearly_df['日期'].astype(str)
-    json_data = macro_china_cpi_yearly_df[['日期', '今值', '预测值', '前值']] \
+    df = ak.macro_china_cpi_yearly()
+    fin.debug(df)
+    df.loc[:, '日期'] = df['日期'].astype(str)
+    json_data = df[['日期', '今值', '预测值', '前值']] \
         .replace(np.nan, None) \
         .values \
         .tolist()
     
-    save('cpi', json_data)
+    save(name, json_data)
 
-    last = macro_china_cpi_yearly_df.iloc[-1]['日期']
-    fin.info(f'CPI更新到{last}')
-    fin.ding(f'CPI更新{last}',f'共{len(json_data)}行')
+    last = df.iloc[-1]['日期']
+    fin.info(f'"{name}"更新到{last}')
+    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
     
-    #TODO: 显示最后一行，或有没有更新
 
+@fin.retry(n=3)
+def ppi():
+    '''
+    '''
+    name = 'PPI'
+    if updated(name): return
+    
+    df = ak.macro_china_ppi_yearly()
+    fin.debug(df)
+    df.loc[:, '日期'] = df['日期'].astype(str)
+    json_data = df[['日期', '今值', '预测值', '前值']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    save(name, json_data)
+
+    last = df.iloc[-1]['日期']
+    fin.info(f'"{name}"更新到{last}')
+    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    
+    
 if __name__ == "__main__":
     fire.Fire()
