@@ -1,8 +1,13 @@
 import index
 import macro
+from utils import fin
+
 
 if __name__ == "__main__":
-    index.value()
-    macro.cpi()
-    macro.ppi()
-    macro.pmi()
+    try:
+        index.value()
+        macro.cpi()
+        macro.ppi()
+        macro.pmi()
+    except Exception as ex:
+        fin.exception(ex)
