@@ -4,6 +4,7 @@ from sqlalchemy import String
 from utils import fin
 from notify import ding
 from datetime import date
+from requests.exceptions import ConnectionError
 
 from sqlalchemy import orm, Integer, Column, String, DATE, DECIMAL, UniqueConstraint, select
 from sqlalchemy.dialects.postgresql import insert, JSONB
@@ -55,7 +56,7 @@ def updated(code):
     return False
 
 
-@fin.retry(n=3)
+@fin.retry(n=3, error=ConnectionError)
 def value():
     '''
     PE - 市盈率

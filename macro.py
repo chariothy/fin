@@ -7,6 +7,9 @@ import numpy as np
 from notify import ding
 from datetime import date
 import re
+from requests.exceptions import ConnectionError
+
+
 
 # 获取当前日期
 today = date.today()
@@ -49,7 +52,7 @@ def updated(name):
     return False
 
 
-@fin.retry(n=3)
+@fin.retry(n=3, error=ConnectionError)
 def cpi():
     '''
     '''
@@ -71,7 +74,7 @@ def cpi():
     fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
     
 
-@fin.retry(n=3)
+@fin.retry(n=3, error=ConnectionError)
 def ppi():
     '''
     '''
@@ -93,7 +96,7 @@ def ppi():
     fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
     
     
-@fin.retry(n=3)
+@fin.retry(n=3, error=ConnectionError)
 def pmi():
     '''
     '''
@@ -115,7 +118,7 @@ def pmi():
     fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
     
 
-@fin.retry(n=3)
+@fin.retry(n=3, error=ConnectionError)
 def money():
     '''
     '''
@@ -138,8 +141,7 @@ def money():
     fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
     
     
-
-@fin.retry(n=3)
+@fin.retry(n=3, error=ConnectionError)
 def retail():
     '''
     '''
