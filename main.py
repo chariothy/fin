@@ -9,5 +9,7 @@ if __name__ == "__main__":
         macro.cpi()
         macro.ppi()
         macro.pmi()
+        macro.money()
+        macro.retail()
     except Exception as ex:
         fin.exception(ex)

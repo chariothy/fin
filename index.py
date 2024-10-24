@@ -6,7 +6,7 @@ from notify import ding
 from datetime import date
 from requests.exceptions import ConnectionError
 
-from sqlalchemy import orm, Integer, Column, String, DATE, DECIMAL, UniqueConstraint, select
+from sqlalchemy import orm, Integer, Column, String, DATE, DECIMAL, UniqueConstraint, select, update
 from sqlalchemy.dialects.postgresql import insert, JSONB
 
 # 获取当前日期
@@ -36,20 +36,18 @@ class IndexBase(Base):
 Base.metadata.create_all(fin.engine) ## Must after orm class
     
 
-def updated(code):
+def _updated(code):
     '''
     检查当日是否已经更新
     '''
     # 构建查询语句
     stmt = select(IndexBase).where(IndexBase.code == code)
-    with fin.session() as sess:
+    with fin.session.begin() as sess:
         # 执行查询
         result = sess.scalars(stmt).one_or_none()
         if result is None:
             stmt = insert(IndexBase).values(code=code, data={}, updated_at=today)
-            with fin.session() as sess:
-                sess.execute(stmt)                            
-                sess.commit()
+            sess.execute(stmt)
         elif result.updated_at == today:
             fin.info(f'"{code}"已是最新')
             return True
@@ -65,12 +63,12 @@ def value():
     report = []
     report_date = None
     for index in fin['index']:
-        if updated(index): continue
+        if _updated(index): continue
         
         df = ak.stock_zh_index_value_csindex(symbol=index)
         fin.debug(df)
         
-        with fin.session() as sess:
+        with fin.session.begin() as sess:
             for _, row in df.iterrows():
                 insert_stmt = insert(IndexValue).values( \
                         code=index, \
@@ -83,8 +81,14 @@ def value():
                 update_stmt = insert_stmt.on_conflict_do_nothing(
                     index_elements=['code', 'date']
                 )
-                sess.execute(update_stmt)                            
-            sess.commit()
+            sess.execute(update_stmt)
+            stmt = (
+                update(IndexBase).
+                where(IndexBase.code.in_([index])).
+                values(updated_at=today)
+            )
+            sess.execute(stmt)
+
         report_date = df.iloc[0]["日期"]
         cur_pe = df.iloc[0]["市盈率2"]
         cur_dy = df.iloc[0]["股息率2"]

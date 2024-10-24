@@ -25,18 +25,17 @@ class Macro(Base):
 Base.metadata.create_all(fin.engine) ## Must after orm class
 
 
-def save(name, data):
+def _save(name, data):
     insert_stmt = insert(Macro).values(name=name, data=data, updated_at=today)
     update_stmt = insert_stmt.on_conflict_do_update(
         index_elements=['name'],
         set_=dict(data=data, updated_at=today)
     )
-    with fin.session() as sess:
+    with fin.session.begin() as sess:
         sess.execute(update_stmt)
-        sess.commit()
 
 
-def updated(name):
+def _updated(name):
     '''
     检查当日是否已经更新
     '''
@@ -57,7 +56,7 @@ def cpi():
     '''
     '''
     name = 'CPI'
-    if updated(name): return
+    if _updated(name): return
     
     df = ak.macro_china_cpi_yearly()
     fin.debug(df)
@@ -67,7 +66,7 @@ def cpi():
         .values \
         .tolist()
     
-    save(name, json_data)
+    _save(name, json_data)
 
     last = df.iloc[-1]['日期']
     fin.info(f'"{name}"更新到{last}')
@@ -79,7 +78,7 @@ def ppi():
     '''
     '''
     name = 'PPI'
-    if updated(name): return
+    if _updated(name): return
     
     df = ak.macro_china_ppi_yearly()
     fin.debug(df)
@@ -89,7 +88,7 @@ def ppi():
         .values \
         .tolist()
     
-    save(name, json_data)
+    _save(name, json_data)
 
     last = df.iloc[-1]['日期']
     fin.info(f'"{name}"更新到{last}')
@@ -101,7 +100,7 @@ def pmi():
     '''
     '''
     name = 'PMI'
-    if updated(name): return
+    if _updated(name): return
     
     df = ak.macro_china_pmi_yearly()
     fin.debug(df)
@@ -111,7 +110,7 @@ def pmi():
         .values \
         .tolist()
     
-    save(name, json_data)
+    _save(name, json_data)
 
     last = df.iloc[-1]['日期']
     fin.info(f'"{name}"更新到{last}')
@@ -123,7 +122,7 @@ def money():
     '''
     '''
     name = 'MONEY'
-    if updated(name): return
+    if _updated(name): return
     
     df = ak.macro_china_money_supply()
     df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})\D+(\d{2})\D+', r'\1-\2', x))
@@ -134,7 +133,7 @@ def money():
         .values \
         .tolist()
     
-    save(name, json_data)
+    _save(name, json_data)
 
     last = df.iloc[-1]['月份']
     fin.info(f'"{name}"更新到{last}')
@@ -146,7 +145,7 @@ def retail():
     '''
     '''
     name = 'RETAIL'
-    if updated(name): return
+    if _updated(name): return
     
     df = ak.macro_china_consumer_goods_retail()
     df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})\D+(\d{2})\D+', r'\1-\2', x))
@@ -157,7 +156,7 @@ def retail():
         .values \
         .tolist()
     
-    save(name, json_data)
+    _save(name, json_data)
 
     last = df.iloc[-1]['月份']
     fin.info(f'"{name}"更新到{last}')
