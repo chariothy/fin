@@ -1,6 +1,5 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, date
 from pybeans import AppTool
-import datetime
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
@@ -94,4 +93,5 @@ def parse_ymd(date_str: str) -> str:
     return parse_date('YMD', date_str)
         
         
+today = date.today()
 fin = FinUtil('fin')

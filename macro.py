@@ -2,7 +2,7 @@ import fire
 import akshare as ak
 from sqlalchemy import orm, Column, String, DATE, select
 from sqlalchemy.dialects.postgresql import insert, JSONB
-from utils import fin
+from utils import fin, today
 import numpy as np
 from notify import ding
 from datetime import date
@@ -10,9 +10,6 @@ import re
 from requests.exceptions import ConnectionError
 
 
-
-# 获取当前日期
-today = date.today()
 Base = orm.declarative_base()
 
 class Macro(Base):
@@ -52,7 +49,7 @@ def _updated(name):
 
 
 @fin.retry(n=3, error=ConnectionError)
-def cpi():
+def cpi(slient=False):
     '''
     '''
     name = 'CPI'
@@ -69,12 +66,15 @@ def cpi():
     _save(name, json_data)
 
     last = df.iloc[-1]['日期']
-    fin.info(f'"{name}"更新到{last}')
-    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
     
 
 @fin.retry(n=3, error=ConnectionError)
-def ppi():
+def ppi(slient=False):
     '''
     '''
     name = 'PPI'
@@ -91,12 +91,15 @@ def ppi():
     _save(name, json_data)
 
     last = df.iloc[-1]['日期']
-    fin.info(f'"{name}"更新到{last}')
-    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
     
     
 @fin.retry(n=3, error=ConnectionError)
-def pmi():
+def pmi(slient=False):
     '''
     '''
     name = 'PMI'
@@ -113,12 +116,15 @@ def pmi():
     _save(name, json_data)
 
     last = df.iloc[-1]['日期']
-    fin.info(f'"{name}"更新到{last}')
-    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
     
 
 @fin.retry(n=3, error=ConnectionError)
-def money():
+def money(slient=False):
     '''
     '''
     name = 'MONEY'
@@ -135,13 +141,16 @@ def money():
     
     _save(name, json_data)
 
-    last = df.iloc[-1]['月份']
-    fin.info(f'"{name}"更新到{last}')
-    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    last = df.iloc[0]['月份']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
     
     
 @fin.retry(n=3, error=ConnectionError)
-def retail():
+def retail(slient=False):
     '''
     '''
     name = 'RETAIL'
@@ -158,9 +167,12 @@ def retail():
     
     _save(name, json_data)
 
-    last = df.iloc[-1]['月份']
-    fin.info(f'"{name}"更新到{last}')
-    fin.ding(f'{name}更新{last}',f'共{len(json_data)}行')
+    last = df.iloc[0]['月份']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
     
     
 if __name__ == "__main__":

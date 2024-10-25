@@ -1,7 +1,7 @@
 import fire
 import akshare as ak
 from sqlalchemy import String
-from utils import fin
+from utils import fin, today
 from notify import ding
 from datetime import date
 from requests.exceptions import ConnectionError
@@ -9,8 +9,7 @@ from requests.exceptions import ConnectionError
 from sqlalchemy import orm, Integer, Column, String, DATE, DECIMAL, UniqueConstraint, select, update
 from sqlalchemy.dialects.postgresql import insert, JSONB
 
-# 获取当前日期
-today = date.today()
+
 Base = orm.declarative_base()
 
 class IndexValue(Base):
