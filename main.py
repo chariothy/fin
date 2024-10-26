@@ -11,7 +11,8 @@ if __name__ == "__main__":
             macro.ppi(slient=True),
             macro.pmi(slient=True),
             macro.money(slient=True),
-            macro.retail(slient=True)
+            macro.retail(slient=True),
+            macro.financing(slient=True)
         ]
         valid_results = [r for r in results if r is not None]
         fin.debug(valid_results)

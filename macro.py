@@ -4,6 +4,7 @@ from sqlalchemy import orm, Column, String, DATE, select
 from sqlalchemy.dialects.postgresql import insert, JSONB
 from utils import fin, today
 import numpy as np
+import pandas as pd
 from notify import ding
 from datetime import date
 import re
@@ -50,7 +51,7 @@ def _updated(name):
 
 @fin.retry(n=3, error=ConnectionError)
 def cpi(slient=False):
-    '''
+    '''消费价格指数
     '''
     name = 'CPI'
     if _updated(name): return
@@ -75,7 +76,7 @@ def cpi(slient=False):
 
 @fin.retry(n=3, error=ConnectionError)
 def ppi(slient=False):
-    '''
+    '''工业品价格指数
     '''
     name = 'PPI'
     if _updated(name): return
@@ -100,7 +101,7 @@ def ppi(slient=False):
     
 @fin.retry(n=3, error=ConnectionError)
 def pmi(slient=False):
-    '''
+    '''销售经理人指数
     '''
     name = 'PMI'
     if _updated(name): return
@@ -125,7 +126,7 @@ def pmi(slient=False):
 
 @fin.retry(n=3, error=ConnectionError)
 def money(slient=False):
-    '''
+    '''货币和准货币(M2)
     '''
     name = 'MONEY'
     if _updated(name): return
@@ -151,7 +152,7 @@ def money(slient=False):
     
 @fin.retry(n=3, error=ConnectionError)
 def retail(slient=False):
-    '''
+    '''社会消费品零售总额
     '''
     name = 'RETAIL'
     if _updated(name): return
@@ -168,6 +169,37 @@ def retail(slient=False):
     _save(name, json_data)
 
     last = df.iloc[0]['月份']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+   
+       
+@fin.retry(n=3, error=ConnectionError)
+def financing(slient=False):
+    '''社会融资规模
+    '''
+    name = 'FINANCING'
+    if _updated(name): return
+    
+    df = ak.macro_china_shrzgm()
+    df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})(\d{2})', r'\1-\2', x))
+    df['日期'] = pd.to_datetime(df['月份'])
+    # 设置月份列为索引
+    df.set_index('日期', inplace=True)
+    df['同比变化'] = df['社会融资规模增量'].pct_change(12) * 100
+    
+    fin.debug(df)
+    df.info()
+    json_data = df[['月份', '社会融资规模增量', '同比变化']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['月份']
     title = f'{name}更新到{last}'
     if slient:
         return title

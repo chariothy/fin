@@ -1,7 +1,7 @@
 from os import environ as env
 CONFIG = {
     'log': {
-        'level': env.get('PY_ENV', 'DEBUG'),    # 与log库的level一致，包括DEBUG, INFO, ERROR
+        'level': env.get('LOG_LEVEL', 'DEBUG'),    # 与log库的level一致，包括DEBUG, INFO, ERROR
                             #   DEBUG   - Enable stdout, file, mail （如果在dest中启用）
                             #   INFO    - Enable file, mail         （如果在dest中启用）
                             #   ERROR   - Enable mail               （如果在dest中启用）
