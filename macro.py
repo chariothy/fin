@@ -233,5 +233,30 @@ def leverr(slient=False):
         fin.ding(title,f'共{len(json_data)}行')
     
     
+@fin.retry(n=3, error=ConnectionError)
+def bond10(slient=False):
+    '''10年国债收益率
+    '''    
+    name = 'BOND10'
+    if _updated(name): return
+    
+    df = ak.bond_zh_us_rate(start_date="20240918")    # start with A500 - 000510
+    df.loc[:, '日期'] = df['日期'].astype(str)
+    fin.debug(df)
+    df.info()
+    json_data = df[['日期', '中国国债收益率10年', '美国国债收益率10年']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['日期']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+    
 if __name__ == "__main__":
     fire.Fire()
