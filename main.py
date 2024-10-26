@@ -14,7 +14,8 @@ if __name__ == "__main__":
             macro.retail(slient=True),
             macro.financing(slient=True),
             macro.leverr(slient=True),
-            macro.bond10(slient=True)
+            macro.bond10(slient=True),
+            macro.shibor(slient=True)
         ]
         valid_results = [r for r in results if r is not None]
         fin.debug(valid_results)

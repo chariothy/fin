@@ -258,5 +258,32 @@ def bond10(slient=False):
     else:
         fin.ding(title,f'共{len(json_data)}行')
     
+        
+@fin.retry(n=3, error=ConnectionError)
+def shibor(slient=False):
+    '''10年国债收益率
+    '''    
+    name = 'SHIBOR'
+    if _updated(name): return
+    
+    df = ak.rate_interbank(market="上海银行同业拆借市场", symbol="Shibor人民币", indicator="隔夜")
+    df.loc[:, '报告日'] = df['报告日'].astype(str)
+    fin.debug(df)
+    df.info()
+    json_data = df[['报告日', '利率', '涨跌']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['报告日']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+        
+        
 if __name__ == "__main__":
     fire.Fire()
