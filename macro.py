@@ -133,9 +133,10 @@ def money(slient=False):
     
     df = ak.macro_china_money_supply()
     df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})\D+(\d{2})\D+', r'\1-\2', x))
+    df['M1-M2同比增速差'] = (df['货币(M1)-同比增长'] - df['货币和准货币(M2)-同比增长']).round(1)
     fin.debug(df)
     df.info()
-    json_data = df[['月份', '货币和准货币(M2)-同比增长', '货币(M1)-同比增长']] \
+    json_data = df[['月份', '货币和准货币(M2)-同比增长', '货币(M1)-同比增长', 'M1-M2同比增速差']] \
         .replace(np.nan, None) \
         .values \
         .tolist()
@@ -200,6 +201,31 @@ def financing(slient=False):
     _save(name, json_data)
 
     last = df.iloc[-1]['月份']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+    
+    
+@fin.retry(n=3, error=ConnectionError)
+def leverr(slient=False):
+    '''宏观杠杆率
+    '''
+    name = 'LEVERR'
+    if _updated(name): return
+    
+    df = ak.macro_cnbs()
+    fin.debug(df)
+    df.info()
+    json_data = df[['年份', '居民部门', '非金融企业部门', '政府部门']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['年份']
     title = f'{name}更新到{last}'
     if slient:
         return title
