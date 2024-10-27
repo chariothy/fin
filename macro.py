@@ -136,7 +136,7 @@ def money(slient=False):
     df['M1-M2同比增速差'] = (df['货币(M1)-同比增长'] - df['货币和准货币(M2)-同比增长']).round(1)
     fin.debug(df)
     df.info()
-    json_data = df[['月份', '货币和准货币(M2)-同比增长', '货币(M1)-同比增长', 'M1-M2同比增速差']] \
+    json_data = df[['月份', '货币(M1)-同比增长', '货币和准货币(M2)-同比增长', 'M1-M2同比增速差']] \
         .replace(np.nan, None) \
         .values \
         .tolist()
@@ -189,7 +189,7 @@ def financing(slient=False):
     df['日期'] = pd.to_datetime(df['月份'])
     # 设置月份列为索引
     df.set_index('日期', inplace=True)
-    df['同比变化'] = df['社会融资规模增量'].pct_change(12) * 100
+    df['同比变化'] = (df['社会融资规模增量'].pct_change(12) * 100).round(2)
     
     fin.debug(df)
     df.info()
