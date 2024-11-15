@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宏观经济指标与自选基金展示</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
+    <style>
+        #nav {
+            width: 20%;
+            float: left;
+            height: 100vh;
+            background-color: #f3f4f6;
+            padding: 10px;
+        }
+
+        #content {
+            width: 75%;
+            float: left;
+            padding: 20px;
+        }
+
+        #chart {
+            height: 400px;
+        }
+
+        .toggle-container {
+            width: 6em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div id="nav" class="p-4">
+        <ul class="menu bg-base-100">
+            <li><a href="#" onclick="switchTab('macro', this)">宏观指标</a></li>
+            <li><a href="#" onclick="switchTab('funds', this)">自选基金</a></li>
+            <li><a href="#" onclick="switchTab('allocation', this)">资产配置</a></li>
+        </ul>
+    </div>
+
+    <div id="content">
+        <div id="macro" style="display: none;">
+            <h2 class="text-xl font-bold">宏观指标</h2>
+            <select multiple id="indicator-select" class="select select-bordered w-full max-w-xs" onchange="updateChart()">
+                <option value="CPI">CPI</option>
+                <option value="PPI">PPI</option>
+                <option value="PMI">PMI</option>
+                <!-- 添加其他宏观指标 -->
+            </select>
+            <div class="toggle-container">
+                <label class="cursor-pointer label">
+                    <span class="label-text">CPI</span> 
+                    <input type="checkbox" class="toggle toggle-primary" value="CPI" onchange="updateChart()">
+                </label>
+            </div>
+            <div class="toggle-container">
+                <label class="cursor-pointer label">
+                    <span class="label-text">PPI</span> 
+                    <input type="checkbox" class="toggle toggle-primary" value="PPI" onchange="updateChart()">
+                </label>
+            </div>
+            <div class="toggle-container">
+                <label class="cursor-pointer label">
+                    <span class="label-text">PMI</span> 
+                    <input type="checkbox" class="toggle toggle-primary" value="PMI" onchange="updateChart()">
+                </label>
+            </div>
+            <div id="chart" class="mt-4 bg-white"></div>
+        </div>
+
+        <div id="funds" style="display: none;">
+            <h2 class="text-xl font-bold">自选基金</h2>
+            <!-- 自选基金内容 -->
+        </div>
+
+        <div id="allocation" style="display: none;">
+            <h2 class="text-xl font-bold">资产配置</h2>
+            <!-- 资产配置内容 -->
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName, element) {
+            // 隐藏所有内容
+            document.getElementById('macro').style.display = 'none';
+            document.getElementById('funds').style.display = 'none';
+            document.getElementById('allocation').style.display = 'none';
+
+            // 显示选定的内容
+            document.getElementById(tabName).style.display = 'block';
+
+            // 移除所有菜单项的高亮
+            let menuItems = document.querySelectorAll('.menu a');
+            menuItems.forEach(item => {
+                item.classList.remove('bg-info', 'text-white');
+            });
+
+            // 为当前选中的菜单项添加高亮
+            element.classList.add('bg-info', 'text-white');
+        }
+
+        let chart = echarts.init(document.getElementById('chart'), null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+
+        function updateChart() {
+            let checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            let indicators = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => checkbox.value);
+
+            if (indicators.length === 0) {
+                chart.clear();
+                return;
+            }
+            // Mock data generation, replace with actual data fetching
+            let seriesData = indicators.map(indicator => ({
+                name: indicator,
+                type: 'line',
+                data: generateMockData(indicator)  // replace with data fetching logic
+            }));
+
+            chart.setOption({
+                title: {
+                    text: '宏观指标趋势'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: indicators
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: generateDateData() // 日期数据
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: seriesData
+            });
+        }
+
+        function generateMockData(indicator) {
+            // 模拟数据生成函数，实际需从服务器获取数据
+            return Array.from({length: 12}, () => Math.floor(Math.random() * 100));
+        }
+        function generateDateData() {
+            // 生成日期数据，假设是每个月的第一个日期
+            const dates = [];
+            const start = new Date(2023, 0, 1);
+            for (let i = 0; i < 12; i++) {
+                const date = new Date(start.getFullYear(), start.getMonth() + i, 1);
+                dates.push(`${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`);
+            }
+            return dates;
+        }
+
+        // 初始显示宏观指标
+        switchTab('macro', document.querySelector('.menu a'));
+    </script>
+</body>
+
+</html>
