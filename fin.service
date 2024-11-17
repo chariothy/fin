@@ -5,9 +5,9 @@ After=network.target
 [Service]
 User=henry
 Group=www-data
-WorkingDirectory=/www/fin
+WorkingDirectory=/www/fin/backend
 Environment="ENV=prod"
-ExecStart=/home/henry/miniconda3/envs/fin/bin/python main.py
+ExecStart=/home/henry/miniconda3/envs/fin/bin/python index.py
 Restart=always
 
 [Install]
