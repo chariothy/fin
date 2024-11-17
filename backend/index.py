@@ -10,7 +10,7 @@ sys.path.append(path.dirname(path.dirname(__file__)))
 from utils import fin
 
 from macro import Macro
-from sqlalchemy import orm, Column, String, DATE, select
+from sqlalchemy import select
 
 ENV = os.environ.get('ENV', 'dev')
 app = FastAPI()

@@ -29,7 +29,7 @@ CONFIG = {
         'type': env.get('SMTP_TYPE', 'ssl')
     },
     'db': {
-        'host': env.get('PGSQL_HOST', 'postgres'),
+        'host': env.get('PGSQL_HOST', '127.0.0.1'),
         'port': env.get('PGSQL_PORT', 5432),
         'db': env.get('PGSQL_DB', 'web'),
         'user': env.get('PGSQL_USER', 'henry'),
