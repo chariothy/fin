@@ -43,5 +43,7 @@ CONFIG = {
         'mail': 1,                         # 通过邮件方式通知，需要配置'mail'和'smtp'
         'dingtalk': 1                      # 通过钉钉机器人[http://dwz.win/MqK]通知，需要配置'dingtalk'
     },
+    'port': 8001,
+    'api': 'http://localhost:8001',
     'index': ('H30269','931446','000510','931052','931579','000068')
 }

@@ -7,6 +7,9 @@
     <title>宏观经济指标与自选基金展示</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/layui@2.9.18/dist/layui.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.9.18/dist/css/layui.min.css">
+
     <style>
         #nav {
             width: 20%;
@@ -22,7 +25,8 @@
             padding: 20px;
         }
 
-        #chart {
+        .chart-container {
+            width: 80rem;
             height: 400px;
         }
 
@@ -33,136 +37,282 @@
     </style>
 </head>
 
-<body class="bg-gray-100">
-    <div id="nav" class="p-4">
-        <ul class="menu bg-base-100">
-            <li><a href="#" onclick="switchTab('macro', this)">宏观指标</a></li>
-            <li><a href="#" onclick="switchTab('funds', this)">自选基金</a></li>
-            <li><a href="#" onclick="switchTab('allocation', this)">资产配置</a></li>
+<body>
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+        <div class="layui-logo layui-hide-xs layui-bg-black">layout demo</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
+            <a href="javascript:;">
+                <img src="//unpkg.com/outeres@0.0.10/img/layui/icon-v2.png" class="layui-nav-img">
+                tester
+            </a>
+            <dl class="layui-nav-child">
+                <dd><a href="javascript:;">Your Profile</a></dd>
+                <dd><a href="javascript:;">Settings</a></dd>
+                <dd><a href="javascript:;">Sign out</a></dd>
+            </dl>
+            </li>
+            <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
+            <a href="javascript:;">
+                <i class="layui-icon layui-icon-more-vertical"></i>
+            </a>
+            </li>
         </ul>
-    </div>
-
-    <div id="content">
-        <div id="macro" style="display: none;">
-            <h2 class="text-xl font-bold">宏观指标</h2>
-            <select multiple id="indicator-select" class="select select-bordered w-full max-w-xs" onchange="updateChart()">
-                <option value="CPI">CPI</option>
-                <option value="PPI">PPI</option>
-                <option value="PMI">PMI</option>
-                <!-- 添加其他宏观指标 -->
-            </select>
-            <div class="toggle-container">
-                <label class="cursor-pointer label">
-                    <span class="label-text">CPI</span> 
-                    <input type="checkbox" class="toggle toggle-primary" value="CPI" onchange="updateChart()">
-                </label>
-            </div>
-            <div class="toggle-container">
-                <label class="cursor-pointer label">
-                    <span class="label-text">PPI</span> 
-                    <input type="checkbox" class="toggle toggle-primary" value="PPI" onchange="updateChart()">
-                </label>
-            </div>
-            <div class="toggle-container">
-                <label class="cursor-pointer label">
-                    <span class="label-text">PMI</span> 
-                    <input type="checkbox" class="toggle toggle-primary" value="PMI" onchange="updateChart()">
-                </label>
-            </div>
-            <div id="chart" class="mt-4 bg-white"></div>
         </div>
-
-        <div id="funds" style="display: none;">
-            <h2 class="text-xl font-bold">自选基金</h2>
-            <!-- 自选基金内容 -->
+        <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+            <li class="layui-nav-item layui-nav-itemed">
+                <a class="" id="macro-menu" href="javascript:;" onclick="switchTab('macro')">宏观指标</a>
+                <dl class="layui-nav-child">
+                <dd><a href="javascript:;">月度数据</a></dd>
+                <dd><a href="javascript:;">高频数据</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:;" onclick="switchTab('funds')">自选基金</a>
+                <dl class="layui-nav-child">
+                <dd><a href="javascript:;">主动</a></dd>
+                <dd><a href="javascript:;">被动</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:;" onclick="switchTab('allocation')">资产配置</a></li>
+            </ul>
         </div>
-
-        <div id="allocation" style="display: none;">
-            <h2 class="text-xl font-bold">资产配置</h2>
-            <!-- 资产配置内容 -->
         </div>
-    </div>
-
-    <script>
-        function switchTab(tabName, element) {
-            // 隐藏所有内容
-            document.getElementById('macro').style.display = 'none';
-            document.getElementById('funds').style.display = 'none';
-            document.getElementById('allocation').style.display = 'none';
-
-            // 显示选定的内容
-            document.getElementById(tabName).style.display = 'block';
-
-            // 移除所有菜单项的高亮
-            let menuItems = document.querySelectorAll('.menu a');
-            menuItems.forEach(item => {
-                item.classList.remove('bg-info', 'text-white');
-            });
-
-            // 为当前选中的菜单项添加高亮
-            element.classList.add('bg-info', 'text-white');
-        }
-
-        let chart = echarts.init(document.getElementById('chart'), null, {
-      renderer: 'canvas',
-      useDirtyRect: false
+        <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <blockquote class="layui-elem-quote layui-text">
+            Layui 框体布局内容主体区域
+            </blockquote>
+            <div class="layui-card layui-panel">
+            <div class="layui-card-header">
+                下面是充数内容，为的是出现滚动条
+            </div>
+            <div class="layui-card-body">
+                <div id="macro" style="display: none;">
+                    <h2 class="text-xl font-bold">宏观指标</h2>
+                    <div class="layui-form">
+                        <input type="checkbox" name="CPI" title="CPI" value="CPI" onchange="updateChart()" lay-filter="macro-checkbox-filter">
+                        <input type="checkbox" name="PPI" title="PPI" value="PPI" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
+                        <input type="checkbox" name="PMI" title="PMI" value="PMI" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
+                    </div>
+                    <div id="chartsArea"></div>
+                </div>
+        
+                <div id="funds" style="display: none;">
+                    <h2 class="text-xl font-bold">自选基金</h2>
+                    <!-- 自选基金内容 -->
+                </div>
+        
+                <div id="allocation" style="display: none;">
+                    <h2 class="text-xl font-bold">资产配置</h2>
+                    <!-- 资产配置内容 -->
+                </div>
+            </div>
+            </div>
+            <br><br>
+        </div>
+        </div>
+        <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        底部固定区域
+        </div>
+  </div>
+   
+  <script>
+  //JS 
+  layui.use(['element', 'layer', 'util'], function(){
+    var element = layui.element;
+    var layer = layui.layer;
+    var util = layui.util;
+    var $ = layui.$;
+    
+    //头部事件
+    util.event('lay-header-event', {
+      menuLeft: function(othis){ // 左侧菜单事件
+        layer.msg('展开左侧菜单的操作', {icon: 0});
+      },
+      menuRight: function(){  // 右侧菜单事件
+        layer.open({
+          type: 1,
+          title: '更多',
+          content: '<div style="padding: 15px;">处理右侧面板的操作</div>',
+          area: ['260px', '100%'],
+          offset: 'rt', // 右上角
+          anim: 'slideLeft', // 从右侧抽屉滑出
+          shadeClose: true,
+          scrollbar: false
+        });
+      }
     });
+  });
+  layui.use(function(){
+    var form = layui.form;
+    var layer = layui.layer;
+    // checkbox 事件
+    form.on('checkbox(macro-checkbox-filter)', function(data){
+        var elem = data.elem; // 获得 checkbox 原始 DOM 对象
+        var checked = elem.checked; // 获得 checkbox 选中状态
+        var value = elem.value; // 获得 checkbox 值
+        var othis = data.othis; // 获得 checkbox 元素被替换后的 jQuery 对象
+        
+        layer.msg('checked 状态: '+ elem.checked+elem.value);
+        updateChart();
+    });
+})
+  
+    function switchTab(tabName, element) {
+        // 隐藏所有内容
+        document.getElementById('macro').style.display = 'none';
+        document.getElementById('funds').style.display = 'none';
+        document.getElementById('allocation').style.display = 'none';
 
-        function updateChart() {
-            let checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            let indicators = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => checkbox.value);
+        // 显示选定的内容
+        document.getElementById(tabName).style.display = 'block';
+    }
 
-            if (indicators.length === 0) {
-                chart.clear();
-                return;
-            }
-            // Mock data generation, replace with actual data fetching
-            let seriesData = indicators.map(indicator => ({
-                name: indicator,
-                type: 'line',
-                data: generateMockData(indicator)  // replace with data fetching logic
-            }));
+async function updateChart() {
+        let checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        let indicators = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => checkbox.value);
 
-            chart.setOption({
-                title: {
-                    text: '宏观指标趋势'
-                },
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: indicators
-                },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: generateDateData() // 日期数据
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: seriesData
+        let chartsArea = document.getElementById('chartsArea');
+        chartsArea.innerHTML = '';  // 清空现有的图表
+
+        for (const indicator of indicators) {
+            const { dates, currentValues, predictedValues, previousValues } = await fetchIndicatorData(indicator);
+            
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            chartContainer.innerHTML = `
+                <div id="ID-slider-${indicator}-range-1" style="margin: 20px;"></div>
+                <div class="chart" style="height: 300px;"></div>
+            `;
+            chartsArea.appendChild(chartContainer);
+            var slider = layui.slider;
+            slider.render({
+                elem: `#ID-slider-${indicator}-range-1`,
+                min: 0,
+                max: dates.length - 1,
+                value: [0, dates.length - 1], // 初始值
+                range: true, // 范围选择
+                done: function(vals){
+                    layer.msg('开始值：'+ vals[0] + '、结尾值：'+ vals[1]);
+                    console.log(this);
+                    updateChartRange(document.getElementById(`ID-slider-${indicator}-range-1`), vals[0], vals[1]);
+                }
             });
-        }
 
-        function generateMockData(indicator) {
-            // 模拟数据生成函数，实际需从服务器获取数据
-            return Array.from({length: 12}, () => Math.floor(Math.random() * 100));
+            let chart = echarts.init(chartContainer.querySelector('.chart'));
+            const initialData = {
+                dates: dates,
+                seriesData: {
+                    currentValues: currentValues,
+                    predictedValues: predictedValues,
+                    previousValues: previousValues
+                }
+            };
+            chart.setOption(getChartOption(initialData.dates, initialData.seriesData));
+
+            chartContainer.chart = chart;
+            chartContainer.initialData = initialData;
         }
-        function generateDateData() {
-            // 生成日期数据，假设是每个月的第一个日期
-            const dates = [];
-            const start = new Date(2023, 0, 1);
-            for (let i = 0; i < 12; i++) {
-                const date = new Date(start.getFullYear(), start.getMonth() + i, 1);
-                dates.push(`${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`);
+    }
+
+    async function fetchIndicatorData(indicator) {
+        try {
+            const response = await fetch(`{{api}}/macro?name=${indicator}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return dates;
+            const data = await response.json();
+            
+            // 解构数据
+            const dates = data.data.map(item => item[0]);
+            const currentValues = data.data.map(item => item[1]);
+            const predictedValues = data.data.map(item => item[2]);
+            const previousValues = data.data.map(item => item[3]);
+
+            return { dates, currentValues, predictedValues, previousValues };
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return { dates: [], currentValues: [], predictedValues: [], previousValues: [] };
         }
+    }
 
-        // 初始显示宏观指标
-        switchTab('macro', document.querySelector('.menu a'));
-    </script>
+    function getChartOption(dates, seriesData) {
+        return {
+            title: {
+                text: '指标趋势'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: dates
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '今值',
+                    type: 'line',
+                    data: seriesData.currentValues
+                },
+                {
+                    name: '预测值',
+                    type: 'line',
+                    data: seriesData.predictedValues
+                },
+                {
+                    name: '前值',
+                    type: 'line',
+                    data: seriesData.previousValues
+                }
+            ]
+        };
+    }
+
+    function updateChartRange(rangeInput, begin, end) {
+        const chartContainer = rangeInput.closest('.chart-container');
+        const chart = chartContainer.chart;
+        const { dates, seriesData } = chartContainer.initialData;
+
+        const filteredDates = dates.slice(begin, end+1);
+        const filteredCurrentValues = seriesData.currentValues.slice(begin, end+1);
+        const filteredPredictedValues = seriesData.predictedValues.slice(begin, end+1);
+        const filteredPreviousValues = seriesData.previousValues.slice(begin, end+1);
+
+        chart.setOption(getChartOption(filteredDates, {
+            currentValues: filteredCurrentValues,
+            predictedValues: filteredPredictedValues,
+            previousValues: filteredPreviousValues
+        }));
+    }
+
+    function generateMockData(indicator) {
+        // 模拟数据生成函数，实际需从服务器获取数据
+        return Array.from({length: 12}, () => Math.floor(Math.random() * 100));
+    }
+    function generateDateData() {
+        // 生成日期数据，假设是每个月的第一个日期
+        const dates = [];
+        const start = new Date(2023, 0, 1);
+        for (let i = 0; i < 12; i++) {
+            const date = new Date(start.getFullYear(), start.getMonth() + i, 1);
+            dates.push(`${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`);
+        }
+        return dates;
+    }
+
+    // 初始显示宏观指标
+    switchTab('macro');
+</script>
 </body>
-
 </html>

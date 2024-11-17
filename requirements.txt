@@ -9,3 +9,5 @@ rich
 sqlalchemy
 psycopg[binary,pool]
 pyecharts
+fastapi
+uvicorn[standard]

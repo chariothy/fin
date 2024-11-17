@@ -4,6 +4,8 @@ from pybeans import AppTool
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+import os
+ENV = os.environ.get('ENV', 'dev')
 
 import re
 REG_DATE = re.compile(r'(\d{4})\D*(\d{1,2})?\D*(\d{1,2})?')
@@ -22,7 +24,7 @@ class FinUtil(AppTool):
         if self._engine is None:
             assert(self['db'] is not None)
             db = self['db']
-            self._engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}")
+            self._engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}", echo=ENV=='dev')
         return self._engine
 
     @property
