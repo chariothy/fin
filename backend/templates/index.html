@@ -99,6 +99,8 @@
                         <input type="checkbox" name="CPI" title="CPI" value="CPI" onchange="updateChart()" lay-filter="macro-checkbox-filter">
                         <input type="checkbox" name="PPI" title="PPI" value="PPI" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
                         <input type="checkbox" name="PMI" title="PMI" value="PMI" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
+                        <input type="checkbox" name="LEVERR" title="杠杆率" value="LEVERR" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
+                        
                     </div>
                     <div id="chartsArea"></div>
                 </div>
@@ -163,7 +165,7 @@
         layer.msg('checked 状态: '+ elem.checked+elem.value);
         updateChart();
     });
-})
+  })
   
     function switchTab(tabName, element) {
         // 隐藏所有内容
@@ -175,7 +177,266 @@
         document.getElementById(tabName).style.display = 'block';
     }
 
-async function updateChart() {
+    async function fetchMacroData(indicator) {
+        try {
+            const response = await fetch(`{{api}}/macro?name=${indicator}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.data;
+
+            // 解构数据
+            const dates = data.data.map(item => item[0]);
+            const currentValues = data.data.map(item => item[1]);
+            const predictedValues = data.data.map(item => item[2]);
+            const previousValues = data.data.map(item => item[3]);
+
+            return { dates, currentValues, predictedValues, previousValues };
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return { dates: [], currentValues: [], predictedValues: [], previousValues: [] };
+        }
+    }
+
+    macroData = {
+        'CPI': {
+            data: {},
+            extractor: function(data) { 
+                const dates = data.map(item => item[0]);
+                const currentValues = data.map(item => item[1]);
+                const predictedValues = data.map(item => item[2]);
+                const previousValues = data.map(item => item[3]);
+                return { 
+                    dates: dates, 
+                    current: currentValues, 
+                    predict: predictedValues, 
+                    previous: previousValues 
+                };
+            },
+        },
+        'PPI': {
+            data: {},
+            extractor: function(data) { 
+                const dates = data.map(item => item[0]);
+                const currentValues = data.map(item => item[1]);
+                const predictedValues = data.map(item => item[2]);
+                const previousValues = data.map(item => item[3]);
+                return { 
+                    dates: dates, 
+                    current: currentValues, 
+                    predict: predictedValues, 
+                    previous: previousValues 
+                };
+            },
+        },
+        'PMI': {
+            data: {},
+            extractor: function(data) { 
+                const dates = data.map(item => item[0]);
+                const currentValues = data.map(item => item[1]);
+                const predictedValues = data.map(item => item[2]);
+                const previousValues = data.map(item => item[3]);
+                return { 
+                    dates: dates, 
+                    current: currentValues, 
+                    predict: predictedValues, 
+                    previous: previousValues 
+                };
+            },
+        },
+        'LEVERR': {
+            data: {},
+            extractor: function(data) { 
+                const dates = data.map(item => item[0]);
+                const residentValues = data.map(item => item[1]);
+                const companyValues = data.map(item => item[2]);
+                const governmentValues = data.map(item => item[3]);
+                return { 
+                    dates: dates, 
+                    resident: residentValues, 
+                    company: companyValues, 
+                    government: governmentValues 
+                };
+            },
+        },
+    }
+
+    chartOptions = function(indicator, begin, end) {
+        indData = macroData[indicator].data;
+        switch (indicator) {
+            case 'CPI':
+                return {
+                    title: {
+                        text: 'CPI'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: indData.dates.slice(begin, end+1)
+                    },
+                    yAxis: {
+                        type: 'value',
+                    },
+                    series: [
+                        {
+                            name: '今值',
+                            type: 'line',
+                            data: indData.current.slice(begin, end+1),
+                        },
+                        {
+                            name: '预测值',
+                            type: 'line',
+                            data: indData.predict.slice(begin, end+1),
+                        },
+                        {
+                            name: '前值',
+                            type: 'line',
+                            data: indData.previous.slice(begin, end+1),
+                        }
+                    ]
+                };
+            case 'PPI':
+                return {
+                    title: {
+                        text: 'PPI'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: indData.dates.slice(begin, end+1)
+                    },
+                    yAxis: {
+                        type: 'value',
+                    },
+                    series: [
+                        {
+                            name: '今值',
+                            type: 'line',
+                            data: indData.current.slice(begin, end+1),
+                        },
+                        {
+                            name: '预测值',
+                            type: 'line',
+                            data: indData.predict.slice(begin, end+1),
+                        },
+                        {
+                            name: '前值',
+                            type: 'line',
+                            data: indData.previous.slice(begin, end+1),
+                        }
+                    ]
+                };
+                case 'PMI':
+                    return {
+                        title: {
+                            text: 'PMI'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: indData.dates.slice(begin, end+1)
+                        },
+                        yAxis: {
+                            type: 'value',
+                            min: 45,
+                            max: 55
+                        },
+                        series: [
+                            {
+                                name: '今值',
+                                type: 'line',
+                                data: indData.current.slice(begin, end+1),
+                                markLine: {
+                                    data: [
+                                        {
+                                            yAxis: 50,
+                                            label: {
+                                                formatter: '荣枯线',
+                                                position: 'end'
+                                            },
+                                            lineStyle: {
+                                                color: 'red', // 线条颜色
+                                                width: 2,     // 线条宽度
+                                                type: 'dashed' // 线条类型
+                                            }
+                                        }
+                                    ]
+                                },
+                            },
+                            {
+                                name: '预测值',
+                                type: 'line',
+                                data: indData.predict.slice(begin, end+1),
+                            },
+                            {
+                                name: '前值',
+                                type: 'line',
+                                data: indData.previous.slice(begin, end+1),
+                            }
+                        ]
+                    };
+                case 'LEVERR':
+                    return {
+                        title: {
+                            text: '宏观杠杆率'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: indData.dates.slice(begin, end+1)
+                        },
+                        yAxis: {
+                            type: 'value',
+                        },
+                        series: [
+                            {
+                                name: '居民部门',
+                                type: 'line',
+                                data: indData.resident.slice(begin, end+1),
+                            },
+                            {
+                                name: '非金融企业部门',
+                                type: 'line',
+                                data: indData.company.slice(begin, end+1),
+                            },
+                            {
+                                name: '政府部门',
+                                type: 'line',
+                                data: indData.government.slice(begin, end+1),
+                            }
+                        ],
+                    };
+            default:
+                break;
+        }
+    };
+    
+    async function getChartOption(indicator, begin, end) {
+        if(Object.keys(macroData[indicator].data)==0) {
+            const response = await fetch(`{{api}}/macro?name=${indicator}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            macroData[indicator].data = macroData[indicator].extractor(data.data);
+        }
+        return chartOptions(indicator, begin, end);
+    }
+
+    async function updateChart() {
         let checkboxes = document.querySelectorAll('input[type="checkbox"]');
         let indicators = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => checkbox.value);
 
@@ -183,42 +444,34 @@ async function updateChart() {
         chartsArea.innerHTML = '';  // 清空现有的图表
 
         for (const indicator of indicators) {
-            const { dates, currentValues, predictedValues, previousValues } = await fetchIndicatorData(indicator);
+            const chartOption = await getChartOption(indicator);
+            const dates = macroData[indicator].data.dates;
             
             const chartContainer = document.createElement('div');
             chartContainer.className = 'chart-container';
             chartContainer.innerHTML = `
-                <div id="ID-slider-${indicator}-range-1" style="margin: 20px;"></div>
+                <div id="ID-slider-${indicator}-range" data-indicator="${indicator}" style="margin: 20px;"></div>
                 <div class="chart" style="height: 300px;"></div>
             `;
             chartsArea.appendChild(chartContainer);
             var slider = layui.slider;
             slider.render({
-                elem: `#ID-slider-${indicator}-range-1`,
+                elem: `#ID-slider-${indicator}-range`,
                 min: 0,
                 max: dates.length - 1,
-                value: [0, dates.length - 1], // 初始值
+                value: [dates.length * 3 / 4, dates.length - 1], // 初始值
                 range: true, // 范围选择
                 done: function(vals){
                     layer.msg('开始值：'+ vals[0] + '、结尾值：'+ vals[1]);
                     console.log(this);
-                    updateChartRange(document.getElementById(`ID-slider-${indicator}-range-1`), vals[0], vals[1]);
+                    updateChartRange(document.getElementById(`ID-slider-${indicator}-range`), vals[0], vals[1]);
                 }
             });
 
             let chart = echarts.init(chartContainer.querySelector('.chart'));
-            const initialData = {
-                dates: dates,
-                seriesData: {
-                    currentValues: currentValues,
-                    predictedValues: predictedValues,
-                    previousValues: previousValues
-                }
-            };
-            chart.setOption(getChartOption(initialData.dates, initialData.seriesData));
-
             chartContainer.chart = chart;
-            chartContainer.initialData = initialData;
+            chartContainer.initialData = macroData[indicator].data;
+            updateChartRange(document.getElementById(`ID-slider-${indicator}-range`), dates.length * 3 / 4, dates.length - 1);
         }
     }
 
@@ -243,57 +496,13 @@ async function updateChart() {
         }
     }
 
-    function getChartOption(dates, seriesData) {
-        return {
-            title: {
-                text: '指标趋势'
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: dates
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [
-                {
-                    name: '今值',
-                    type: 'line',
-                    data: seriesData.currentValues
-                },
-                {
-                    name: '预测值',
-                    type: 'line',
-                    data: seriesData.predictedValues
-                },
-                {
-                    name: '前值',
-                    type: 'line',
-                    data: seriesData.previousValues
-                }
-            ]
-        };
-    }
-
-    function updateChartRange(rangeInput, begin, end) {
+    async function updateChartRange(rangeInput, begin, end) {
         const chartContainer = rangeInput.closest('.chart-container');
         const chart = chartContainer.chart;
-        const { dates, seriesData } = chartContainer.initialData;
 
-        const filteredDates = dates.slice(begin, end+1);
-        const filteredCurrentValues = seriesData.currentValues.slice(begin, end+1);
-        const filteredPredictedValues = seriesData.predictedValues.slice(begin, end+1);
-        const filteredPreviousValues = seriesData.previousValues.slice(begin, end+1);
-
-        chart.setOption(getChartOption(filteredDates, {
-            currentValues: filteredCurrentValues,
-            predictedValues: filteredPredictedValues,
-            previousValues: filteredPreviousValues
-        }));
+        indicator = rangeInput.dataset.indicator;
+        options = await getChartOption(indicator, begin, end)
+        chart.setOption(options);
     }
 
     function generateMockData(indicator) {
