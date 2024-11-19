@@ -261,7 +261,7 @@ def bond10(slient=False):
         
 @fin.retry(n=3, error=ConnectionError)
 def shibor(slient=False):
-    '''10年国债收益率
+    '''同业拆借
     '''    
     name = 'SHIBOR'
     if _updated(name): return

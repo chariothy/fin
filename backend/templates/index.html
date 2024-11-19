@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宏观经济指标与自选基金展示</title>
+    <title>宏观经济指标</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/layui@2.9.18/dist/layui.min.js"></script>
@@ -40,84 +40,94 @@
 <body>
     <div class="layui-layout layui-layout-admin">
         <div class="layui-header">
-        <div class="layui-logo layui-hide-xs layui-bg-black">layout demo</div>
-        <ul class="layui-nav layui-layout-right">
-            <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
-            <a href="javascript:;">
-                <img src="//unpkg.com/outeres@0.0.10/img/layui/icon-v2.png" class="layui-nav-img">
-                tester
-            </a>
-            <dl class="layui-nav-child">
-                <dd><a href="javascript:;">Your Profile</a></dd>
-                <dd><a href="javascript:;">Settings</a></dd>
-                <dd><a href="javascript:;">Sign out</a></dd>
-            </dl>
-            </li>
-            <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
-            <a href="javascript:;">
-                <i class="layui-icon layui-icon-more-vertical"></i>
-            </a>
-            </li>
-        </ul>
-        </div>
-        <div class="layui-side layui-bg-black">
-        <div class="layui-side-scroll">
-            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
-            <ul class="layui-nav layui-nav-tree" lay-filter="test">
-            <li class="layui-nav-item layui-nav-itemed">
-                <a class="" id="macro-menu" href="javascript:;" onclick="switchTab('macro')">宏观指标</a>
-                <dl class="layui-nav-child">
-                <dd><a href="javascript:;">月度数据</a></dd>
-                <dd><a href="javascript:;">高频数据</a></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a href="javascript:;" onclick="switchTab('funds')">自选基金</a>
-                <dl class="layui-nav-child">
-                <dd><a href="javascript:;">主动</a></dd>
-                <dd><a href="javascript:;">被动</a></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item"><a href="javascript:;" onclick="switchTab('allocation')">资产配置</a></li>
+            <div class="layui-logo layui-hide-xs layui-bg-black">宏观经济指标</div>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item layui-hide layui-show-sm-inline-block">
+                    <a href="javascript:;">
+                        <img src="//unpkg.com/outeres@0.0.10/img/layui/icon-v2.png" class="layui-nav-img">
+                        游客
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;">Your Profile</a></dd>
+                        <dd><a href="javascript:;">Settings</a></dd>
+                        <dd><a href="javascript:;">Sign out</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
+                    <a href="javascript:;">
+                        <i class="layui-icon layui-icon-more-vertical"></i>
+                    </a>
+                </li>
             </ul>
         </div>
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" id="macro-menu" href="javascript:;" onclick="switchTab('macro')">宏观指标</a>
+                    <dl class="layui-nav-child">
+                    <dd><a href="javascript:;" onclick="switchTab('macro')">月度数据</a></dd>
+                    <dd><a href="javascript:;" onclick="switchTab('macro')">日报数据</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" id="macro-menu" href="javascript:;" onclick="switchTab('index')">指数走势</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;" onclick="switchTab('funds')">自选基金</a>
+                    <dl class="layui-nav-child">
+                    <dd><a href="javascript:;">主动</a></dd>
+                    <dd><a href="javascript:;">被动</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="javascript:;" onclick="switchTab('allocation')">资产配置</a></li>
+                </ul>
+            </div>
         </div>
         <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">
-            <blockquote class="layui-elem-quote layui-text">
-            Layui 框体布局内容主体区域
-            </blockquote>
-            <div class="layui-card layui-panel">
-            <div class="layui-card-header">
-                下面是充数内容，为的是出现滚动条
-            </div>
-            <div class="layui-card-body">
-                <div id="macro" style="display: none;">
-                    <h2 class="text-xl font-bold">宏观指标</h2>
-                    <div class="layui-form">
-                        <input type="checkbox" name="CPI" title="CPI" value="CPI" onchange="updateChart()" lay-filter="macro-checkbox-filter">
-                        <input type="checkbox" name="PPI" title="PPI" value="PPI" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
-                        <input type="checkbox" name="PMI" title="PMI" value="PMI" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
-                        <input type="checkbox" name="LEVERR" title="杠杆率" value="LEVERR" onchange="updateChart()" lay-filter="macro-checkbox-filter"> 
-                        
+            <div style="padding: 15px;">
+                <blockquote class="layui-elem-quote layui-text">
+                月度经济指标数据
+                </blockquote>
+                <div class="layui-card layui-panel">
+                    <div class="layui-card-body">
+                        <div id="macro" class="fin-card" style="display: none;">
+                            <h2 class="text-xl font-bold">宏观指标</h2>
+                            <div class="layui-form">
+                                <input type="checkbox" name="CPI" title="CPI" value="CPI" lay-filter="macro-checkbox-filter">
+                                <input type="checkbox" name="PPI" title="PPI" value="PPI" lay-filter="macro-checkbox-filter"> 
+                                <input type="checkbox" name="PMI" title="PMI" value="PMI" lay-filter="macro-checkbox-filter"> 
+                                <input type="checkbox" name="LEVERR" title="杠杆率" value="LEVERR" lay-filter="macro-checkbox-filter"> 
+                                <input type="checkbox" name="RETAIL" title="社零" value="RETAIL" lay-filter="macro-checkbox-filter"> 
+                                <input type="checkbox" name="MONEY" title="货币投放" value="MONEY" lay-filter="macro-checkbox-filter"> 
+                                <input type="checkbox" name="FINANCING" title="社融" value="FINANCING" lay-filter="macro-checkbox-filter"> 
+                            </div>
+                            <div class="chartsArea"></div>
+                        </div>
+                
+                        <div id="index" class="fin-card" style="display: none;">
+                            <h2 class="text-xl font-bold">指数走势</h2>
+                            <div class="layui-form">
+                                <input type="checkbox" name="BOND10" title="10债" value="BOND10" onchange="updateChart(this)" lay-filter="macro-checkbox-filter">
+                            </div>
+                            <div class="chartsArea"></div>
+                        </div>
+
+                        <div id="funds" class="fin-card" style="display: none;">
+                            <h2 class="text-xl font-bold">自选基金</h2>
+                            <!-- 自选基金内容 -->
+                        </div>
+                
+                        <div id="allocation" class="fin-card" style="display: none;">
+                            <h2 class="text-xl font-bold">资产配置</h2>
+                            <!-- 资产配置内容 -->
+                        </div>
                     </div>
-                    <div id="chartsArea"></div>
                 </div>
-        
-                <div id="funds" style="display: none;">
-                    <h2 class="text-xl font-bold">自选基金</h2>
-                    <!-- 自选基金内容 -->
-                </div>
-        
-                <div id="allocation" style="display: none;">
-                    <h2 class="text-xl font-bold">资产配置</h2>
-                    <!-- 资产配置内容 -->
-                </div>
+                <br><br>
             </div>
-            </div>
-            <br><br>
-        </div>
         </div>
         <div class="layui-footer">
         <!-- 底部固定区域 -->
@@ -157,21 +167,22 @@
     var layer = layui.layer;
     // checkbox 事件
     form.on('checkbox(macro-checkbox-filter)', function(data){
-        var elem = data.elem; // 获得 checkbox 原始 DOM 对象
-        var checked = elem.checked; // 获得 checkbox 选中状态
-        var value = elem.value; // 获得 checkbox 值
-        var othis = data.othis; // 获得 checkbox 元素被替换后的 jQuery 对象
-        
-        layer.msg('checked 状态: '+ elem.checked+elem.value);
-        updateChart();
-    });
-  })
+            var elem = data.elem; // 获得 checkbox 原始 DOM 对象
+            var checked = elem.checked; // 获得 checkbox 选中状态
+            var value = elem.value; // 获得 checkbox 值
+            var othis = data.othis; // 获得 checkbox 元素被替换后的 jQuery 对象
+            
+            layer.msg('checked 状态: '+ elem.checked+elem.value);
+            finCard = elem.closest('.fin-card');
+            updateChart(finCard);
+        });
+    })
   
     function switchTab(tabName, element) {
         // 隐藏所有内容
-        document.getElementById('macro').style.display = 'none';
-        document.getElementById('funds').style.display = 'none';
-        document.getElementById('allocation').style.display = 'none';
+        document.querySelectorAll('.fin-card').forEach(element => {
+            element.style.display = 'none';
+        });
 
         // 显示选定的内容
         document.getElementById(tabName).style.display = 'block';
@@ -203,60 +214,85 @@
         'CPI': {
             data: {},
             extractor: function(data) { 
-                const dates = data.map(item => item[0]);
-                const currentValues = data.map(item => item[1]);
-                const predictedValues = data.map(item => item[2]);
-                const previousValues = data.map(item => item[3]);
                 return { 
-                    dates: dates, 
-                    current: currentValues, 
-                    predict: predictedValues, 
-                    previous: previousValues 
+                    dates: data.map(item => item[0]), 
+                    current: data.map(item => item[1]), 
+                    predict: data.map(item => item[2]), 
+                    previous: data.map(item => item[3]) 
                 };
             },
         },
         'PPI': {
             data: {},
             extractor: function(data) { 
-                const dates = data.map(item => item[0]);
-                const currentValues = data.map(item => item[1]);
-                const predictedValues = data.map(item => item[2]);
-                const previousValues = data.map(item => item[3]);
                 return { 
-                    dates: dates, 
-                    current: currentValues, 
-                    predict: predictedValues, 
-                    previous: previousValues 
+                    dates: data.map(item => item[0]), 
+                    current: data.map(item => item[1]), 
+                    predict: data.map(item => item[2]), 
+                    previous: data.map(item => item[3]) 
                 };
             },
         },
         'PMI': {
             data: {},
             extractor: function(data) { 
-                const dates = data.map(item => item[0]);
-                const currentValues = data.map(item => item[1]);
-                const predictedValues = data.map(item => item[2]);
-                const previousValues = data.map(item => item[3]);
                 return { 
-                    dates: dates, 
-                    current: currentValues, 
-                    predict: predictedValues, 
-                    previous: previousValues 
+                    dates: data.map(item => item[0]), 
+                    current: data.map(item => item[1]), 
+                    predict: data.map(item => item[2]), 
+                    previous: data.map(item => item[3]) 
                 };
             },
         },
         'LEVERR': {
             data: {},
             extractor: function(data) { 
-                const dates = data.map(item => item[0]);
-                const residentValues = data.map(item => item[1]);
-                const companyValues = data.map(item => item[2]);
-                const governmentValues = data.map(item => item[3]);
                 return { 
-                    dates: dates, 
-                    resident: residentValues, 
-                    company: companyValues, 
-                    government: governmentValues 
+                    dates: data.map(item => item[0]), 
+                    resident: data.map(item => item[1]), 
+                    company: data.map(item => item[2]), 
+                    government: data.map(item => item[3]) 
+                };
+            },
+        },
+        'RETAIL': {
+            data: {},
+            extractor: function(data) { 
+                data.reverse();
+                return { 
+                    dates: data.map(item => item[0]), 
+                    y2y: data.map(item => item[1])
+                };
+            },
+        },
+        'MONEY': {
+            data: {},
+            extractor: function(data) { 
+                data.reverse();
+                return { 
+                    dates: data.map(item => item[0]), 
+                    m1: data.map(item => item[1]), 
+                    m2: data.map(item => item[2]), 
+                    m1m2: data.map(item => item[3])
+                };
+            },
+        },
+        'FINANCING': {
+            data: {},
+            extractor: function(data) { 
+                return { 
+                    dates: data.map(item => item[0]), 
+                    y2y: data.map(item => item[2])
+                };
+            },
+        },
+        'BOND10': {
+            data: {},
+            extractor: function(data) { 
+                return { 
+                    dates: data.map(item => item[0]), 
+                    cn10: data.map(item => item[1]), 
+                    us10: data.map(item => item[2])
                 };
             },
         },
@@ -419,6 +455,117 @@
                             }
                         ],
                     };
+                case 'RETAIL':
+                    return {
+                        title: {
+                            text: '社会消费品零售总额'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: indData.dates.slice(begin, end+1)
+                        },
+                        yAxis: {
+                            type: 'value',
+                        },
+                        series: [
+                            {
+                                name: '同比',
+                                type: 'line',
+                                data: indData.y2y.slice(begin, end+1),
+                            },
+                        ],
+                    };
+                case 'MONEY':
+                    return {
+                        title: {
+                            text: '货币投放'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: indData.dates.slice(begin, end+1)
+                        },
+                        yAxis: {
+                            type: 'value',
+                        },
+                        series: [
+                            {
+                                name: 'M1同比增速',
+                                type: 'line',
+                                data: indData.m1.slice(begin, end+1),
+                            },
+                            {
+                                name: 'M2同比增速',
+                                type: 'line',
+                                data: indData.m2.slice(begin, end+1),
+                            },
+                            {
+                                name: 'M1-M2',
+                                type: 'line',
+                                data: indData.m1m2.slice(begin, end+1),
+                            },
+                        ],
+                    };
+                case 'FINANCING':
+                    return {
+                        title: {
+                            text: '社会融资规模'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: indData.dates.slice(begin, end+1)
+                        },
+                        yAxis: {
+                            type: 'value',
+                        },
+                        series: [
+                            {
+                                name: '同比',
+                                type: 'line',
+                                data: indData.y2y.slice(begin, end+1),
+                            },
+                        ],
+                    };
+                case 'BOND10':
+                    return {
+                        title: {
+                            text: '10年期国债'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: indData.dates.slice(begin, end+1)
+                        },
+                        yAxis: {
+                            type: 'value',
+                        },
+                        series: [
+                            {
+                                name: '中国',
+                                type: 'line',
+                                data: indData.cn10.slice(begin, end+1),
+                            },
+                            {
+                                name: '美国',
+                                type: 'line',
+                                data: indData.us10.slice(begin, end+1),
+                            },
+                        ],
+                    };
             default:
                 break;
         }
@@ -436,11 +583,11 @@
         return chartOptions(indicator, begin, end);
     }
 
-    async function updateChart() {
-        let checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    async function updateChart(finCard) {
+        let checkboxes = finCard.querySelectorAll('input[type="checkbox"]');
         let indicators = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => checkbox.value);
 
-        let chartsArea = document.getElementById('chartsArea');
+        let chartsArea = finCard.querySelector('.chartsArea');
         chartsArea.innerHTML = '';  // 清空现有的图表
 
         for (const indicator of indicators) {
