@@ -240,7 +240,7 @@ def bond10(slient=False):
     name = 'BOND10'
     if _updated(name): return
     
-    df = ak.bond_zh_us_rate(start_date="20240918")    # start with A500 - 000510
+    df = ak.bond_zh_us_rate(start_date="20020101")    # start with A500 - 000510
     df.loc[:, '日期'] = df['日期'].astype(str)
     fin.debug(df)
     df.info()

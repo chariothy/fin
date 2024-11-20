@@ -110,7 +110,8 @@
                         <div id="index" class="fin-card" style="display: none;">
                             <h2 class="text-xl font-bold">指数走势</h2>
                             <div class="layui-form">
-                                <input type="checkbox" name="BOND10" title="10债" value="BOND10" onchange="updateChart(this)" lay-filter="macro-checkbox-filter">
+                                <input type="checkbox" name="BOND10" title="10年期国债" value="BOND10" onchange="updateChart(this)" lay-filter="macro-checkbox-filter">
+                                <input type="checkbox" name="SHIBOR" title="隔夜拆借利率" value="SHIBOR" onchange="updateChart(this)" lay-filter="macro-checkbox-filter">
                             </div>
                             <div class="chartsArea"></div>
                         </div>
@@ -213,6 +214,7 @@
     macroData = {
         'CPI': {
             data: {},
+            last: 1/4,
             extractor: function(data) { 
                 return { 
                     dates: data.map(item => item[0]), 
@@ -224,6 +226,7 @@
         },
         'PPI': {
             data: {},
+            last: 1/4,
             extractor: function(data) { 
                 return { 
                     dates: data.map(item => item[0]), 
@@ -235,6 +238,7 @@
         },
         'PMI': {
             data: {},
+            last: 1/4,
             extractor: function(data) { 
                 return { 
                     dates: data.map(item => item[0]), 
@@ -246,6 +250,7 @@
         },
         'LEVERR': {
             data: {},
+            last: 1/4,
             extractor: function(data) { 
                 return { 
                     dates: data.map(item => item[0]), 
@@ -257,6 +262,7 @@
         },
         'RETAIL': {
             data: {},
+            last: 1/4,
             extractor: function(data) { 
                 data.reverse();
                 return { 
@@ -267,6 +273,7 @@
         },
         'MONEY': {
             data: {},
+            last: 1/4,
             extractor: function(data) { 
                 data.reverse();
                 return { 
@@ -279,6 +286,7 @@
         },
         'FINANCING': {
             data: {},
+            last: 1/4,
             extractor: function(data) { 
                 return { 
                     dates: data.map(item => item[0]), 
@@ -288,11 +296,23 @@
         },
         'BOND10': {
             data: {},
+            last: 1/60,
             extractor: function(data) { 
                 return { 
                     dates: data.map(item => item[0]), 
                     cn10: data.map(item => item[1]), 
                     us10: data.map(item => item[2])
+                };
+            },
+        },
+        'SHIBOR': {
+            data: {},
+            last: 1/40,
+            extractor: function(data) { 
+                return { 
+                    dates: data.map(item => item[0]), 
+                    intrest: data.map(item => item[1]), 
+                    increase: data.map(item => item[2])
                 };
             },
         },
@@ -566,6 +586,35 @@
                             },
                         ],
                     };
+                case 'SHIBOR':
+                    return {
+                        title: {
+                            text: '隔夜拆借利率'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: indData.dates.slice(begin, end+1)
+                        },
+                        yAxis: {
+                            type: 'value',
+                        },
+                        series: [
+                            {
+                                name: '利率',
+                                type: 'line',
+                                data: indData.intrest.slice(begin, end+1),
+                            },
+                            {
+                                name: '涨跌',
+                                type: 'line',
+                                data: indData.increase.slice(begin, end+1),
+                            },
+                        ],
+                    };
             default:
                 break;
         }
@@ -606,7 +655,7 @@
                 elem: `#ID-slider-${indicator}-range`,
                 min: 0,
                 max: dates.length - 1,
-                value: [dates.length * 3 / 4, dates.length - 1], // 初始值
+                value: [dates.length * (1-macroData[indicator].last), dates.length - 1], // 初始值
                 range: true, // 范围选择
                 done: function(vals){
                     layer.msg('开始值：'+ vals[0] + '、结尾值：'+ vals[1]);
@@ -618,7 +667,11 @@
             let chart = echarts.init(chartContainer.querySelector('.chart'));
             chartContainer.chart = chart;
             chartContainer.initialData = macroData[indicator].data;
-            updateChartRange(document.getElementById(`ID-slider-${indicator}-range`), dates.length * 3 / 4, dates.length - 1);
+            updateChartRange(
+                document.getElementById(`ID-slider-${indicator}-range`), 
+                dates.length * (1-macroData[indicator].last), 
+                dates.length - 1
+            );
         }
     }
 
