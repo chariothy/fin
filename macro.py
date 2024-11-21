@@ -285,5 +285,106 @@ def shibor(slient=False):
         fin.ding(title,f'共{len(json_data)}行')
         
         
+@fin.retry(n=3, error=ConnectionError)
+def margin(slient=False):
+    '''两融
+    '''    
+    name = 'MARGIN'
+    if _updated(name): return
+    
+    df = ak.stock_margin_account_info()
+    df.loc[:, '日期'] = df['日期'].astype(str)
+    fin.debug(df)
+    df.info()
+    json_data = df[['日期', '融资余额', '融券余额', '融资买入额', '融券卖出额']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['日期']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+        
+        
+@fin.retry(n=3, error=ConnectionError)
+def sentiment(slient=False):
+    '''市场情绪
+    '''    
+    name = 'SENTIMENT'
+    if _updated(name): return
+    
+    df = ak.index_news_sentiment_scope()
+    df.loc[:, '日期'] = df['日期'].astype(str)
+    fin.debug(df)
+    df.info()
+    json_data = df[['日期', '市场情绪指数', '沪深300指数']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['日期']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+        
+        
+@fin.retry(n=3, error=ConnectionError)
+def index(slient=False):
+    '''指数估值
+    '''    
+    name = 'INDEX'
+    if _updated(name): return
+    
+    df = ak.index_value_name_funddb()
+    df.loc[:, '指数开始时间'] = df['指数开始时间'].astype(str)
+    df.loc[:, '更新时间'] = df['更新时间'].astype(str)
+    fin.debug(df)
+    df.info()
+    json_data = df.replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['更新时间']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+        
+          
+@fin.retry(n=3, error=ConnectionError)
+def sh300_fear_greed(slient=False):
+    '''沪深300贪恐
+    '''    
+    name = 'SH300_FEAR_GREED'
+    if _updated(name): return
+    
+    df = ak.index_fear_greed_funddb(symbol="沪深300")
+    df.loc[:, 'date'] = df['date'].astype(str)
+    fin.debug(df)
+    df.info()
+    json_data = df.replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    _save(name, json_data)
+
+    last = df.iloc[-1]['date']
+    title = f'{name}更新到{last}'
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
 if __name__ == "__main__":
     fire.Fire()
