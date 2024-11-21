@@ -7,7 +7,7 @@ User=henry
 Group=www-data
 WorkingDirectory=/www/fin/backend
 Environment="ENV=prod"
-ExecStart=/home/henry/miniconda3/envs/fin/bin/python index.py
+ExecStart=cd /home/henry/miniconda3/envs/fin/bin && pip install -U akshare && python index.py
 Restart=always
 
 [Install]
