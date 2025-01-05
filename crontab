@@ -1,0 +1,5 @@
+PROFILE=/home/henry/.bash_profile
+FIN=/www/fin
+CONDA=/home/henry/miniconda3/envs
+#20 * * * * . $PROFILE; cd $FIN; $CONDA/fin/bin/pip install -U akshare && $CONDA/fin/bin/python main.py > /dev/null 2>&1
+20 * * * * . $PROFILE; cd $FIN; $CONDA/fin/bin/python main.py > /dev/null 2>&1
