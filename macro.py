@@ -340,6 +340,7 @@ def sentiment(slient=False):
 @fin.retry(n=3, error=ConnectionError)
 def index(slient=False):
     '''指数估值
+    ## 指数估值从1.15.51开始被删除
     '''    
     name = 'INDEX'
     if _updated(name): return

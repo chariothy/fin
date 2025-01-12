@@ -18,7 +18,7 @@ if __name__ == "__main__":
             macro.shibor(slient=True),
             macro.margin(slient=True),
             macro.sentiment(slient=True),
-            #macro.index(slient=True),
+            #macro.index(slient=True), ## 指数估值从1.15.51开始被删除
             macro.sh300_fear_greed(slient=True)
         ]
         valid_results = [r for r in results if r is not None]
