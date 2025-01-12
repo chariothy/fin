@@ -1,5 +1,5 @@
-#akshare ## 指数估值从1.15.51开始被删除
-akshare==1.15.51
+akshare
+#akshare==1.15.51 ## 指数估值从1.15.51开始被删除
 pybeans>=1.12.0
 pyarrow
 pandas
