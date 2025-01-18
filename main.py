@@ -19,7 +19,7 @@ if __name__ == "__main__":
             macro.margin(slient=True),
             macro.sentiment(slient=True),
             #macro.index(slient=True), ## 指数估值从1.15.51开始被删除
-            macro.sh300_fear_greed(slient=True)
+            #macro.sh300_fear_greed(slient=True), ## 指数估值从1.15.65开始被删除
         ]
         valid_results = [r for r in results if r is not None]
         fin.debug(valid_results)
