@@ -1,6 +1,7 @@
 .vscode
 *_local.py
 *.csv
+*.xlsx
 *.json
 *.pkl
 data/*

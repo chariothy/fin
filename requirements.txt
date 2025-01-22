@@ -12,3 +12,4 @@ psycopg[binary,pool]
 pyecharts
 fastapi
 uvicorn[standard]
+openpyxl
