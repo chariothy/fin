@@ -1,4 +1,5 @@
-from os import environ as env
+from os import environ as env, path
+
 CONFIG = {
     'log': {
         'level': env.get('LOG_LEVEL', 'DEBUG'),    # 与log库的level一致，包括DEBUG, INFO, ERROR
@@ -46,5 +47,5 @@ CONFIG = {
     'port': 8001,
     'api': 'http://localhost:8001',
     'index': ('H30269','931446','000510','931052','931579','000068'),
-    'asset_config_path': r'C:\Users\henrytian\OneDrive\henry\投资\资配系统.xlsx'
+    'asset_config_path': path.join(env.get('home'), 'OneDrive', 'henry', '投资', '资配系统.xlsx')
 }
