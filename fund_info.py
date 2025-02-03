@@ -49,6 +49,7 @@ def get_fund_info():
             #print(row)
             code = row[CODE].value
             name = row[NAME].value
+            manager = row[MANAGER].value
             all_return_cell = row[ALL_RETURN]
             
             result = off_exchg_df[off_exchg_df['基金代码'] == code]
@@ -72,6 +73,8 @@ def get_fund_info():
                             continue
                     
             if fund_name:
+                if fund_name != name:
+                    fin.error(f"基金：{code}，基金名称发生变化：{name} -> {fund_name}")
                 fin.debug(f"找到基金：{code} {name}")
                 if not name.endswith('ETF'):
                     try:
@@ -91,7 +94,10 @@ def get_fund_info():
                     try:
                         basic_df = ak.fund_individual_basic_info_xq(symbol=code)
                         row[FOUND_DATE].value = basic_df[basic_df['item']=='成立时间'].iloc[0]['value']
-                        row[MANAGER].value = basic_df[basic_df['item']=='基金经理'].iloc[0]['value']
+                        new_manager = basic_df[basic_df['item']=='基金经理'].iloc[0]['value']
+                        if new_manager != manager:
+                            fin.error(f"基金：{code} {name}，基金经理发生变化：{manager} -> {new_manager}")
+                            row[MANAGER].value = new_manager
                         scale = basic_df[basic_df['item']=='最新规模'].iloc[0]['value']
                         scale = scale.replace("亿", "")
                         if scale.endswith("万"):
@@ -118,3 +124,4 @@ def get_fund_info():
 
 if __name__ == "__main__":
     get_fund_info()
+    input()
