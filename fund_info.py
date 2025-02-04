@@ -5,15 +5,17 @@ import shutil
 import pandas as pd
 from utils import fin
 
+CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
 CODE = 0
 NAME = 1
 FOUND_DATE = 3
-VALUE = 5
-SCALE = 6
-SALE = 7
-FEE = 8
-MANAGER = 9
-ALL_RETURN = 12
+VALUE = 6
+SCALE = 7
+SALE = 8
+FEE = 9
+MANAGER = 10
+MS_RANK = 12
+ALL_RETURN = 13
 
 
 def set_value(ws_cell, df_cell, divider=100):
@@ -52,6 +54,9 @@ def get_fund_info():
             manager = row[MANAGER].value
             all_return_cell = row[ALL_RETURN]
             
+            if not code:
+                continue
+            
             result = off_exchg_df[off_exchg_df['基金代码'] == code]
             fund_name = ''
             if not result.empty:
@@ -74,38 +79,8 @@ def get_fund_info():
                     
             if fund_name:
                 if fund_name != name:
-                    fin.error(f"基金：{code}，基金名称发生变化：{name} -> {fund_name}")
-                fin.debug(f"找到基金：{code} {name}")
-                if not name.endswith('ETF'):
-                    try:
-                        fee_df = ak.fund_individual_detail_info_xq(symbol=code)
-                        last_sell_rule = fee_df[fee_df['费用类型'] == '卖出规则'].iloc[-1]
-                        sale_fee = ''
-                        if last_sell_rule['费用'] > 0:
-                            sale_fee = f'({last_sell_rule['费用']})'
-                        row[SALE].value = f'{last_sell_rule['条件或名称'].replace("持有期限", "").replace("<=", "")}{sale_fee}'
-                        other_fees_df = fee_df[fee_df['费用类型'] == '其他费用']
-                        formula = "=(" + "+".join([str(fee) for fee in other_fees_df['费用']]) + ")/100"
-                        row[FEE].value = formula
-                    except Exception:
-                        fin.info(f"基金：{code} {name}，获取交易信息失败")
-                        continue
-                    
-                    try:
-                        basic_df = ak.fund_individual_basic_info_xq(symbol=code)
-                        row[FOUND_DATE].value = basic_df[basic_df['item']=='成立时间'].iloc[0]['value']
-                        new_manager = basic_df[basic_df['item']=='基金经理'].iloc[0]['value']
-                        if new_manager != manager:
-                            fin.error(f"基金：{code} {name}，基金经理发生变化：{manager} -> {new_manager}")
-                            row[MANAGER].value = new_manager
-                        scale = basic_df[basic_df['item']=='最新规模'].iloc[0]['value']
-                        scale = scale.replace("亿", "")
-                        if scale.endswith("万"):
-                            scale = scale.replace("万", "") / 10000
-                        row[SCALE].value = float(scale)
-                    except Exception:
-                        fin.info(f"基金：{code} {name}，获取基础信息失败")
-                        continue
+                    fin.error(f"基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
+                #fin.debug(f"找到基金：{code} {name}")
                 
                 set_value(row[VALUE], result.iloc[0]['单位净值'], 1)
                 set_value(all_return_cell, result.iloc[0]['成立来'])
@@ -117,11 +92,60 @@ def get_fund_info():
                 set_value(all_return_cell.offset(column=6), result.iloc[0]['近2年'])
                 set_value(all_return_cell.offset(column=7), result.iloc[0]['近3年'])
                 set_value(all_return_cell.offset(column=8), result.iloc[0]['今年来'])
-        
+                
+                try:
+                    fee_df = ak.fund_individual_detail_info_xq(symbol=code)
+                    last_sell_rule = fee_df[fee_df['费用类型'] == '卖出规则'].iloc[-1]
+                    sale_fee = ''
+                    if last_sell_rule['费用'] > 0:
+                        sale_fee = f'({last_sell_rule['费用']})'
+                    row[SALE].value = f'{last_sell_rule['条件或名称'].replace("持有期限", "").replace("<=", "")}{sale_fee}'
+                    other_fees_df = fee_df[fee_df['费用类型'] == '其他费用']
+                    formula = "=(" + "+".join([str(fee) for fee in other_fees_df['费用']]) + ")/100"
+                    row[FEE].value = formula
+                except Exception as ex:
+                    #raise ex
+                    fin.info(f"交易信息获取失败 - 基金：{code} {name}, {str(ex)}")
+                    continue
+                
+                try:
+                    basic_df = ak.fund_individual_basic_info_xq(symbol=code)
+                    row[FOUND_DATE].value = basic_df[basic_df['item']=='成立时间'].iloc[0]['value']
+                    new_manager = basic_df[basic_df['item']=='基金经理'].iloc[0]['value']
+                    if new_manager != manager:
+                        row[MANAGER].value = new_manager
+                        if manager:
+                            fin.error(f"基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
+                        
+                    scale = basic_df[basic_df['item']=='最新规模'].iloc[0]['value']
+                    scale = scale.replace("亿", "")
+                    if scale.endswith("万"):
+                        scale = float(scale.replace("万", "")) / 10000
+                    row[SCALE].value = float(scale)
+
+                    rating_by = basic_df[basic_df['item'] == '评级机构'].iloc[0]['value']                        
+                    if pd.notna(rating_by): # and rating_by == '晨星评级':
+                        rating = basic_df[basic_df['item'] == '基金评级'].iloc[0]['value']    
+                        num = CH_INT[rating.split('星')[0]]
+                        row[MS_RANK].value = '★' * num + rating_by
+                except Exception as ex:
+                    #raise ex
+                    fin.info(f"基础信息获取失败 - 基金：{code} {name}， {str(ex)}")
+                    continue                
+            else:
+                try:
+                    hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
+                    set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)
+                    hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计收益率走势", period="成立来")
+                    set_value(all_return_cell, hist_df.iloc[-1]['累计收益率'])
+                except Exception as ex:
+                    #raise ex
+                    fin.info(f"收益信息获取失败 - 基金：{code} {name}， {str(ex)}")
+                    continue
         wb.save(file_path)
     finally:
         wb.close()
 
 if __name__ == "__main__":
     get_fund_info()
-    input()
+    input('Press any key to quit')
