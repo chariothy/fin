@@ -6,16 +6,21 @@ import pandas as pd
 from utils import fin
 
 CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
+ANA_PERIODS = ('近1年', '近3年', '近5年', '近10年')
+ANA_VALUES = ('年化波动率', '年化夏普比率', '最大回撤')
+
 CODE = 0
 NAME = 1
-FOUND_DATE = 3
-VALUE = 6
-SCALE = 7
-SALE = 8
-FEE = 9
-MANAGER = 10
-MS_RANK = 12
-ALL_RETURN = 13
+CATE = 2
+FOUND_DATE = 4
+VALUE = 5
+SCALE = 6
+SALE = 7
+FEE = 8
+MANAGER = 9
+MANAGE_AT = 10
+ALL_RETURN = 11
+ANA_START = 20
 
 
 def set_value(ws_cell, df_cell, divider=100):
@@ -51,6 +56,7 @@ def get_fund_info():
             #print(row)
             code = row[CODE].value
             name = row[NAME].value
+            cate = row[CATE].value
             manager = row[MANAGER].value
             all_return_cell = row[ALL_RETURN]
             
@@ -122,16 +128,23 @@ def get_fund_info():
                     if scale.endswith("万"):
                         scale = float(scale.replace("万", "")) / 10000
                     row[SCALE].value = float(scale)
-
-                    rating_by = basic_df[basic_df['item'] == '评级机构'].iloc[0]['value']                        
-                    if pd.notna(rating_by): # and rating_by == '晨星评级':
-                        rating = basic_df[basic_df['item'] == '基金评级'].iloc[0]['value']    
-                        num = CH_INT[rating.split('星')[0]]
-                        row[MS_RANK].value = '★' * num + rating_by
                 except Exception as ex:
                     #raise ex
                     fin.info(f"基础信息获取失败 - 基金：{code} {name}， {str(ex)}")
-                    continue                
+                    continue
+                
+                if cate not in ('长债', '中债', '短债'):
+                    try:
+                        ana_df = ak.fund_individual_analysis_xq(symbol=code)
+                        for apn, apv in enumerate(ANA_PERIODS):
+                            found_row = ana_df[ana_df['周期'] == apv]
+                            if not found_row.empty:
+                                for avn, avv in enumerate(ANA_VALUES):
+                                    row[ANA_START + apn*3 + avn].value = found_row[avv].values[0]
+                    except Exception as ex:
+                        #raise ex
+                        fin.info(f"分析信息获取失败 - 基金：{code} {name}， {str(ex)}")
+                        continue
             else:
                 try:
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
