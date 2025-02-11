@@ -4,6 +4,7 @@ import datetime
 import shutil
 import pandas as pd
 from utils import fin
+from pybeans import today
 
 CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
 ANA_PERIODS = ('近1年', '近3年', '近5年', '近10年')
@@ -120,6 +121,8 @@ def get_fund_info():
                     new_manager = basic_df[basic_df['item']=='基金经理'].iloc[0]['value']
                     if new_manager != manager:
                         row[MANAGER].value = new_manager
+                        if not (set(manager.split(' ')) & set(new_manager.split(' '))): ## 没有交集说明是不是加入搭档，更新管理时间
+                            row[MANAGE_AT].value = today() 
                         if manager:
                             fin.error(f"基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
                         
@@ -133,7 +136,7 @@ def get_fund_info():
                     fin.info(f"基础信息获取失败 - 基金：{code} {name}， {str(ex)}")
                     continue
                 
-                if cate not in ('长债', '中债', '短债'):
+                if cate not in ('长债', '中债', '短债') and 'ETF' not in name and '指数' not in name:
                     try:
                         ana_df = ak.fund_individual_analysis_xq(symbol=code)
                         for apn, apv in enumerate(ANA_PERIODS):
