@@ -136,7 +136,7 @@ def get_fund_info():
                     fin.info(f"基础信息获取失败 - 基金：{code} {name}， {str(ex)}")
                     continue
                 
-                if cate not in ('长债', '中债', '短债') and 'ETF' not in name and '指数' not in name:
+                if cate not in ('长债', '中债', '短债') and 'ETF' not in name and '指数' not in name and '联接' not in name:
                     try:
                         ana_df = ak.fund_individual_analysis_xq(symbol=code)
                         for apn, apv in enumerate(ANA_PERIODS):
