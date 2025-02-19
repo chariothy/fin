@@ -36,6 +36,13 @@ CONFIG = {
         'user': env.get('PGSQL_USER', 'henry'),
         'pwd': env.get('PGSQL_PWD', '123456')
     },
+    'ro_db': {
+        'host': env.get('PGSQL_HOST', '127.0.0.1'),
+        'port': env.get('PGSQL_PORT', 5432),
+        'db': env.get('PGSQL_DB', 'web'),
+        'user': env.get('PGSQL_USER', 'henry'),
+        'pwd': env.get('PGSQL_PWD', '123456')
+    },
     'dingtalk': {                       # 通过钉钉机器人发送通知，具体请见钉钉机器人文档
         'token': env.get('DINGTALK_TOKEN', ''),
         'secret' : env.get('DINGTALK_SECRET', '') # 钉钉机器人的三种验证方式之一为密钥验证

@@ -318,16 +318,31 @@ def sentiment(slient=False):
     name = 'SENTIMENT'
     if _updated(name): return
     
+    existing_data = []
+    existing_dates = []
+    stmt = select(Macro).where(Macro.name == name)
+    with fin.session() as sess:
+        # 执行查询
+        result = sess.scalars(stmt).first()
+        existing_data = result.data
+        for row in existing_data:
+            date = row[0]
+            existing_dates.append(date)
+    
     df = ak.index_news_sentiment_scope()
     df.loc[:, '日期'] = df['日期'].astype(str)
     fin.debug(df)
     df.info()
-    json_data = df[['日期', '市场情绪指数', '沪深300指数']] \
+    new_df = df[~df['日期'].isin(existing_dates)]
+    fin.debug(new_df)
+    json_data = new_df[['日期', '市场情绪指数', '沪深300指数']] \
         .replace(np.nan, None) \
         .values \
         .tolist()
+    all_data = existing_data + json_data
+    # fin.debug(all_data)
     
-    _save(name, json_data)
+    _save(name, all_data)
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
@@ -367,6 +382,7 @@ def index(slient=False):
 @fin.retry(n=3, error=ConnectionError)
 def sh300_fear_greed(slient=False):
     '''沪深300贪恐
+    ## 指数估值从1.15.65开始被删除
     '''    
     name = 'SH300_FEAR_GREED'
     if _updated(name): return

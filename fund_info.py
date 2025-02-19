@@ -5,6 +5,8 @@ import shutil
 import pandas as pd
 from utils import fin
 from pybeans import today
+from monthly_info import update_monthly
+from daily_info import update_daily
 
 CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
 ANA_PERIODS = ('近1年', '近3年', '近5年', '近10年')
@@ -161,6 +163,12 @@ def get_fund_info():
         wb.save(file_path)
     finally:
         wb.close()
+        
+    fin.info(f"> 更新宏观数据")
+    update_monthly(file_path)
+    
+    fin.info(f"> 更新高频数据")
+    update_daily(file_path)
 
 if __name__ == "__main__":
     get_fund_info()
