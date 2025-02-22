@@ -24,7 +24,7 @@ G_LEVERR = 10
 
 def _get_data(name):
     stmt = select(Macro).where(Macro.name == name)
-    with fin.ro_session() as sess:
+    with fin.session() as sess:
         # 执行查询
         result = sess.scalars(stmt).first()
         return result.data

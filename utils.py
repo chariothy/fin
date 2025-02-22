@@ -17,26 +17,17 @@ class FinUtil(AppTool):
     def __init__(self, spider_name):
         super(FinUtil, self).__init__(spider_name)
         self._session = None
-        self._ro_session = None
         self._engine = None
-        self._ro_engine = None
 
     @property
     def engine(self):
         if self._engine is None:
             assert(self['db'] is not None)
             db = self['db']
-            self._engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}", echo=ENV=='dev')
+            self.info(f'连接数据库：', db['db'])
+            self._engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}", echo=False)
         return self._engine
 
-    @property
-    def ro_engine(self):
-        if self._ro_engine is None:
-            assert(self['ro_db'] is not None)
-            db = self['ro_db']
-            self._ro_engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}")
-        return self._ro_engine
-    
     @property
     def session(self):
         """
@@ -47,15 +38,6 @@ class FinUtil(AppTool):
         self._session = sessionmaker(bind=self.engine)
         return self._session
     
-    @property
-    def ro_session(self):
-        """
-        Lazy loading
-        """
-        if self._ro_session:
-            return self._ro_session
-        self._ro_session = sessionmaker(bind=self.ro_engine)
-        return self._ro_session
         
 def parse_date(mode: str, date_str: str) -> str:
     """日期解析

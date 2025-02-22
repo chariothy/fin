@@ -164,10 +164,10 @@ def get_fund_info():
     finally:
         wb.close()
         
-    fin.info(f"> 更新宏观数据")
+    fin.info(f"> 更新月度宏观数据")
     update_monthly(file_path)
     
-    fin.info(f"> 更新高频数据")
+    fin.info(f"> 更新每日高频数据")
     update_daily(file_path)
 
 if __name__ == "__main__":
