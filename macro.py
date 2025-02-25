@@ -68,6 +68,7 @@ def cpi(slient=False):
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -93,6 +94,7 @@ def ppi(slient=False):
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -118,6 +120,7 @@ def pmi(slient=False):
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -145,6 +148,7 @@ def money(slient=False):
 
     last = df.iloc[0]['月份']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -171,6 +175,7 @@ def retail(slient=False):
 
     last = df.iloc[0]['月份']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -202,6 +207,7 @@ def financing(slient=False):
 
     last = df.iloc[-1]['月份']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -227,6 +233,7 @@ def leverr(slient=False):
 
     last = df.iloc[-1]['年份']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -253,6 +260,7 @@ def bond10(slient=False):
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -279,6 +287,7 @@ def shibor(slient=False):
 
     last = df.iloc[-1]['报告日']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -305,6 +314,7 @@ def margin(slient=False):
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -346,6 +356,7 @@ def sentiment(slient=False):
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -373,6 +384,7 @@ def index(slient=False):
 
     last = df.iloc[-1]['更新时间']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
@@ -399,6 +411,7 @@ def sh300_fear_greed(slient=False):
 
     last = df.iloc[-1]['date']
     title = f'{name}更新到{last}'
+    fin.info(title)
     if slient:
         return title
     else:
