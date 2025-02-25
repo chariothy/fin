@@ -24,7 +24,7 @@ class FinUtil(AppTool):
         if self._engine is None:
             assert(self['db'] is not None)
             db = self['db']
-            self.info(f'连接数据库：', db['db'])
+            self.debug(f'连接数据库：{db['db']}')
             self._engine = create_engine(f"postgresql+psycopg://{db['user']}:{db['pwd']}@{db['host']}:{db['port']}/{db['db']}", echo=False)
         return self._engine
 
