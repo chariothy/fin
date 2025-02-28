@@ -51,6 +51,8 @@ def get_fund_info():
     fin.info(f'获取到指数基金数据{len(index_em_df)}条')
     #print(df)
     
+    VALUE_DATE = None
+    
     wb = openpyxl.load_workbook(file_path)
     try:
         sheet = wb['基金']
@@ -91,6 +93,10 @@ def get_fund_info():
                     fin.error(f"基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
                 #fin.debug(f"找到基金：{code} {name}")
                 
+                if not VALUE_DATE:
+                    VALUE_DATE = result.iloc[0]['日期']
+                    fin.debug(f"净值日期：{VALUE_DATE}")
+                    
                 set_value(row[VALUE], result.iloc[0]['单位净值'], 1)
                 set_value(all_return_cell, result.iloc[0]['成立来'])
                 set_value(all_return_cell.offset(column=1), result.iloc[0]['近1周'])
@@ -154,6 +160,9 @@ def get_fund_info():
                 try:
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
                     set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)
+                    if not VALUE_DATE:
+                        VALUE_DATE = hist_df.iloc[-1]['净值日期']
+                        fin.debug(f"净值日期：{VALUE_DATE}")
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计收益率走势", period="成立来")
                     set_value(all_return_cell, hist_df.iloc[-1]['累计收益率'])
                 except Exception as ex:
