@@ -46,6 +46,6 @@ CONFIG = {
     },
     'port': 8001,
     'api': 'http://localhost:8001',
-    'index': ('H30269','931446','000510','931052','931579','000068'),
+    'index': ('H30269','931446','000510','931052','931579','000068','000300'),
     'asset_config_path': path.join(path.expanduser('~'), 'OneDrive', 'henry', '投资', '资配系统.xlsx')
 }
