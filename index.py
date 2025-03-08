@@ -113,13 +113,14 @@ def value():
                 update_stmt = insert_stmt.on_conflict_do_nothing(
                     index_elements=['code', 'date']
                 )
-            sess.execute(update_stmt)
-            stmt = (
+                sess.execute(update_stmt)
+            # 更新基金名称
+            name_stmt = (
                 update(IndexBase).
                 where(IndexBase.code.in_([index])).
                 values(updated_at=today)
             )
-            sess.execute(stmt)
+            sess.execute(name_stmt)
 
         report_date = df.iloc[0]["日期"]
         cur_pe = df.iloc[0]["市盈率2"]
@@ -146,6 +147,11 @@ def all(keyword=None, code=None):
         print(df[df['display_name'].str.contains(keyword)])
     if code:
         print(df[df['index_code'] == code])
+
+
+def history(code):
+    df = ak.stock_zh_index_value_csindex(symbol=code)
+    print(df)
 
 
 if __name__ == "__main__":
