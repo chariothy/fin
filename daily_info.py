@@ -2,6 +2,7 @@ import datetime, json
 from sqlalchemy import orm, Column, String, DATE, select
 import pandas as pd
 from macro import Macro
+from index import IndexValue
 from utils import fin
 
 now = datetime.datetime.now()
@@ -9,7 +10,7 @@ five_years_ago = now.replace(year=now.year - 5)
 base_date = five_years_ago.strftime('%Y-%m-%d')
 
 macro_dict = {}
-items = [None, None, None, None, None, None, None]
+items = [None, None, None, None, None, None, None, None]
 BOND10_CN = 0
 BOND10_US = 1
 SHIBOR = 2
@@ -17,7 +18,15 @@ FINANCING_BALANCE = 3
 MARGIN_BALANCE = 4
 SENTIMENT = 5
 HS300 = 6
+HS300PE = 7
 
+
+def _get_index_value(code):
+    stmt = select(IndexValue).where(IndexValue.code == code)
+    with fin.session() as sess:
+        # 执行查询
+        result = sess.scalars(stmt).all()
+        return result
 
 def _get_data(name):
     stmt = select(Macro).where(Macro.name == name)
@@ -68,9 +77,20 @@ def update_daily(filepath):
                 macro_dict[date] = items.copy()
             macro_dict[date][SENTIMENT] = sentiment
             macro_dict[date][HS300] = hs300
+            
+    
+    index_values = _get_index_value('000300')
+    for item in index_values:
+        date = item.date.isoformat()
+        pe = item.pe1
+        if date > base_date:
+            if date not in macro_dict:
+                macro_dict[date] = items.copy()
+            macro_dict[date][HS300PE] = float(pe)
 
-    df = pd.DataFrame([(k, *v) for k, v in macro_dict.items()], columns=['年月日', '中国10债', '美国10债', '同业拆借', '融资余额', '融券余额', '市场情绪', '沪深300点位'])
+    df = pd.DataFrame([(k, *v) for k, v in macro_dict.items()], columns=['年月日', '中国10债', '美国10债', '同业拆借', '融资余额', '融券余额', '市场情绪', '沪深300点位', '沪深300PE'])
     df = df.sort_values('年月日')
+    df['股债利差3%~6%'] = 100 / df['沪深300PE'] - df['中国10债']
     print(df)
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
         df.to_excel(writer, sheet_name='高频', index=False, header=True, startrow=0, startcol=0)
@@ -78,3 +98,5 @@ def update_daily(filepath):
     
 if __name__ == '__main__':
     update_daily(r'C:\Users\Henry\OneDrive\henry\投资\资配系统-20250215.xlsx')
+    # for ind in _get_index_value('000300'):
+    #     print(ind.date, ind.code, ind.pe1)
