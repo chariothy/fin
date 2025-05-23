@@ -1,5 +1,6 @@
 import akshare as ak
 import openpyxl
+from openpyxl.utils import get_column_letter
 import datetime
 import shutil
 import pandas as pd
@@ -17,13 +18,14 @@ NAME = 1
 CATE = 2
 FOUND_DATE = 4
 VALUE = 5
-SCALE = 6
-SALE = 7
-FEE = 8
-MANAGER = 9
-MANAGE_AT = 10
-ALL_RETURN = 11
-ANA_START = 20
+VOLATILITY = 6
+SCALE = 7
+SALE = 8
+FEE = 9
+MANAGER = 10
+MANAGE_AT = 11
+ALL_RETURN = 12
+ANA_START = 21
 
 
 def set_value(ws_cell, df_cell, divider=100):
@@ -97,7 +99,11 @@ def get_fund_info():
                     VALUE_DATE = result.iloc[0]['日期']
                     fin.debug(f"净值日期：{VALUE_DATE}")
                     
-                set_value(row[VALUE], result.iloc[0]['单位净值'], 1)
+                old_value = row[VALUE].value
+                new_value = result.iloc[0]['单位净值']
+                # fin.debug(f"更新基金：{code} {name}：{old_value} -> {new_value}")
+                set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
+                set_value(row[VALUE], new_value, 1)
                 set_value(all_return_cell, result.iloc[0]['成立来'])
                 set_value(all_return_cell.offset(column=1), result.iloc[0]['近1周'])
                 set_value(all_return_cell.offset(column=2), result.iloc[0]['近1月'])
@@ -159,6 +165,9 @@ def get_fund_info():
             else:
                 try:
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
+                    old_value = row[VALUE].value
+                    new_value = hist_df.iloc[-1]['累计净值']
+                    set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
                     set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)
                     if not VALUE_DATE:
                         VALUE_DATE = hist_df.iloc[-1]['净值日期']
@@ -169,6 +178,8 @@ def get_fund_info():
                     #raise ex
                     fin.info(f"收益信息获取失败 - 基金：{code} {name}， {str(ex)}")
                     continue
+        if VALUE_DATE:
+            sheet[f'{get_column_letter(VALUE+1)}1'] = f'净值({VALUE_DATE})'
         wb.save(file_path)
     finally:
         wb.close()
