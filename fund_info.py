@@ -59,7 +59,7 @@ def get_fund_info():
     try:
         sheet = wb['基金']
         data = []
-        for row in sheet.iter_rows(min_row=2):
+        for row_idx, row in enumerate(sheet.iter_rows(min_row=2), start=2):
             #print(row)
             code = row[CODE].value
             name = row[NAME].value
@@ -87,12 +87,12 @@ def get_fund_info():
                         if not result.empty:
                             pass
                         else:
-                            fin.info(f"未找到基金：{code} {name}")
+                            fin.info(f"Line {row_idx}: 未找到基金：{code} {name}")
                             continue
                     
             if fund_name:
                 if fund_name != name:
-                    fin.error(f"基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
+                    fin.error(f"Line {row_idx}: 基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
                 #fin.debug(f"找到基金：{code} {name}")
                 
                 if not VALUE_DATE:
@@ -126,7 +126,7 @@ def get_fund_info():
                     row[FEE].value = formula
                 except Exception as ex:
                     #raise ex
-                    fin.info(f"交易信息获取失败 - 基金：{code} {name}, {str(ex)}")
+                    fin.info(f"Line {row_idx}: 交易信息获取失败 - 基金：{code} {name}, {str(ex)}")
                     continue
                 
                 try:
@@ -138,7 +138,7 @@ def get_fund_info():
                         if not (set(manager.split(' ')) & set(new_manager.split(' '))): ## 没有交集说明是不是加入搭档，更新管理时间
                             row[MANAGE_AT].value = today() 
                         if manager:
-                            fin.error(f"基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
+                            fin.error(f"Line {row_idx}: 基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
                         
                     scale = basic_df[basic_df['item']=='最新规模'].iloc[0]['value']
                     scale = scale.replace("亿", "")
@@ -147,7 +147,7 @@ def get_fund_info():
                     row[SCALE].value = float(scale)
                 except Exception as ex:
                     #raise ex
-                    fin.info(f"基础信息获取失败 - 基金：{code} {name}， {str(ex)}")
+                    fin.info(f"Line {row_idx}: 基础信息获取失败 - 基金：{code} {name}， {str(ex)}")
                     continue
                 
                 if cate not in ('长债', '中债', '短债') and 'ETF' not in name and '指数' not in name and '联接' not in name:
@@ -160,7 +160,7 @@ def get_fund_info():
                                     row[ANA_START + apn*3 + avn].value = found_row[avv].values[0]
                     except Exception as ex:
                         #raise ex
-                        fin.info(f"分析信息获取失败 - 基金：{code} {name}， {str(ex)}")
+                        fin.info(f"Line {row_idx}: 分析信息获取失败 - 基金：{code} {name}， {str(ex)}")
                         continue
             else:
                 try:
@@ -176,7 +176,7 @@ def get_fund_info():
                     set_value(all_return_cell, hist_df.iloc[-1]['累计收益率'])
                 except Exception as ex:
                     #raise ex
-                    fin.info(f"收益信息获取失败 - 基金：{code} {name}， {str(ex)}")
+                    fin.info(f"Line {row_idx}: 收益信息获取失败 - 基金：{code} {name}， {str(ex)}")
                     continue
         if VALUE_DATE:
             sheet[f'{get_column_letter(VALUE+1)}1'] = f'净值({VALUE_DATE})'
