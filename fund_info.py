@@ -191,5 +191,8 @@ def get_fund_info():
     update_daily(file_path)
 
 if __name__ == "__main__":
-    get_fund_info()
-    input('Press any key to quit')
+    try:
+        get_fund_info()
+    except Exception as ex:
+        fin.ex(f"获取基金信息失败：{str(ex)}")
+        input('Press any key to quit')
