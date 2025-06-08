@@ -1,5 +1,6 @@
 import index
 import macro
+import index_931995
 from utils import fin, today
 
 
@@ -7,6 +8,7 @@ if __name__ == "__main__":
     try:
         index.value()
         results = [
+            index_931995.value(),
             macro.cpi(slient=True),
             macro.ppi(slient=True),
             macro.pmi(slient=True),

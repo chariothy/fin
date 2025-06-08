@@ -23,17 +23,17 @@ class Macro(Base):
 Base.metadata.create_all(fin.engine) ## Must after orm class
 
 
-def _save(name, data):
-    insert_stmt = insert(Macro).values(name=name, data=data, updated_at=today)
+def save(name, data, updated_at=today):
+    insert_stmt = insert(Macro).values(name=name, data=data, updated_at=updated_at)
     update_stmt = insert_stmt.on_conflict_do_update(
         index_elements=['name'],
-        set_=dict(data=data, updated_at=today)
+        set_=dict(data=data, updated_at=updated_at)
     )
     with fin.session.begin() as sess:
         sess.execute(update_stmt)
 
 
-def _updated(name):
+def updated(name, updated_at=today):
     '''
     检查当日是否已经更新
     '''
@@ -54,7 +54,7 @@ def cpi(slient=False):
     '''消费价格指数
     '''
     name = 'CPI'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.macro_china_cpi_yearly()
     fin.debug(df)
@@ -64,7 +64,7 @@ def cpi(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
@@ -80,7 +80,7 @@ def ppi(slient=False):
     '''工业品价格指数
     '''
     name = 'PPI'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.macro_china_ppi_yearly()
     fin.debug(df)
@@ -90,7 +90,7 @@ def ppi(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
@@ -106,7 +106,7 @@ def pmi(slient=False):
     '''销售经理人指数
     '''
     name = 'PMI'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.macro_china_pmi_yearly()
     fin.debug(df)
@@ -116,7 +116,7 @@ def pmi(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
@@ -132,7 +132,7 @@ def money(slient=False):
     '''货币和准货币(M2)
     '''
     name = 'MONEY'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.macro_china_money_supply()
     df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})\D+(\d{2})\D+', r'\1-\2', x))
@@ -144,7 +144,7 @@ def money(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[0]['月份']
     title = f'{name}更新到{last}'
@@ -160,7 +160,7 @@ def retail(slient=False):
     '''社会消费品零售总额
     '''
     name = 'RETAIL'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.macro_china_consumer_goods_retail()
     df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})\D+(\d{2})\D+', r'\1-\2', x))
@@ -171,7 +171,7 @@ def retail(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[0]['月份']
     title = f'{name}更新到{last}'
@@ -187,7 +187,7 @@ def financing(slient=False):
     '''社会融资规模
     '''
     name = 'FINANCING'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.macro_china_shrzgm()
     df.loc[:, '月份'] = df['月份'].apply(lambda x: re.sub(r'(\d{4})(\d{2})', r'\1-\2', x))
@@ -203,7 +203,7 @@ def financing(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['月份']
     title = f'{name}更新到{last}'
@@ -219,7 +219,7 @@ def leverr(slient=False):
     '''宏观杠杆率
     '''
     name = 'LEVERR'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.macro_cnbs()
     fin.debug(df)
@@ -229,7 +229,7 @@ def leverr(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['年份']
     title = f'{name}更新到{last}'
@@ -245,7 +245,7 @@ def bond10(slient=False):
     '''10年国债收益率
     '''    
     name = 'BOND10'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.bond_zh_us_rate(start_date="20020101")    # start with A500 - 000510
     df.loc[:, '日期'] = df['日期'].astype(str)
@@ -256,7 +256,7 @@ def bond10(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
@@ -272,7 +272,7 @@ def shibor(slient=False):
     '''同业拆借
     '''    
     name = 'SHIBOR'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.rate_interbank(market="上海银行同业拆借市场", symbol="Shibor人民币", indicator="隔夜")
     df.loc[:, '报告日'] = df['报告日'].astype(str)
@@ -283,7 +283,7 @@ def shibor(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['报告日']
     title = f'{name}更新到{last}'
@@ -299,7 +299,7 @@ def margin(slient=False):
     '''两融
     '''    
     name = 'MARGIN'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.stock_margin_account_info()
     df.loc[:, '日期'] = df['日期'].astype(str)
@@ -310,7 +310,7 @@ def margin(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
@@ -326,7 +326,7 @@ def sentiment(slient=False):
     '''市场情绪
     '''    
     name = 'SENTIMENT'
-    if _updated(name): return
+    if updated(name): return
     
     existing_data = []
     existing_dates = []
@@ -352,7 +352,7 @@ def sentiment(slient=False):
     all_data = existing_data + json_data
     # fin.debug(all_data)
     
-    _save(name, all_data)
+    save(name, all_data)
 
     last = df.iloc[-1]['日期']
     title = f'{name}更新到{last}'
@@ -369,7 +369,7 @@ def index(slient=False):
     ## 指数估值从1.15.51开始被删除
     '''    
     name = 'INDEX'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.index_value_name_funddb()
     df.loc[:, '指数开始时间'] = df['指数开始时间'].astype(str)
@@ -380,7 +380,7 @@ def index(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['更新时间']
     title = f'{name}更新到{last}'
@@ -397,7 +397,7 @@ def sh300_fear_greed(slient=False):
     ## 指数估值从1.15.65开始被删除
     '''    
     name = 'SH300_FEAR_GREED'
-    if _updated(name): return
+    if updated(name): return
     
     df = ak.index_fear_greed_funddb(symbol="沪深300")
     df.loc[:, 'date'] = df['date'].astype(str)
@@ -407,7 +407,7 @@ def sh300_fear_greed(slient=False):
         .values \
         .tolist()
     
-    _save(name, json_data)
+    save(name, json_data)
 
     last = df.iloc[-1]['date']
     title = f'{name}更新到{last}'
