@@ -13,3 +13,5 @@ pyecharts
 fastapi
 uvicorn[standard]
 openpyxl
+requests
+pymupdf
