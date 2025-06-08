@@ -8,7 +8,7 @@ if __name__ == "__main__":
     try:
         index.value()
         results = [
-            index_931995.value(),
+            index_931995.get_config(slient=True),
             macro.cpi(slient=True),
             macro.ppi(slient=True),
             macro.pmi(slient=True),
