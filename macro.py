@@ -49,6 +49,19 @@ def updated(name, updated_at=today):
     return False
 
 
+def query(name):
+    '''
+    检查当日是否已经更新
+    '''
+    # 构建查询语句
+    stmt = select(Macro).where(Macro.name == name)
+    with fin.session() as sess:
+        # 执行查询
+        result = sess.scalars(stmt).one_or_none()
+        return result
+    return None
+
+
 @fin.retry(n=3, error=ConnectionError)
 def cpi(slient=False):
     '''消费价格指数

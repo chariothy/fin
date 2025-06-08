@@ -7,7 +7,7 @@ import re
 from dataclasses import dataclass, asdict
 
 from utils import fin
-from macro import save, updated
+from macro import save, updated, query
 
 INDEX_CODE = '931995'
 INDEX_NAME = '海通大类资产配置'
@@ -159,13 +159,17 @@ def get_config(slient=False):
         text, config_date = parse_pdf_text(file_name)
         fin.info(f"解析的配置日期为: {config_date}")
         
-        config_updated = updated(INDEX_CODE, config_date)
-        if config_updated:
-            fin.ding(f"配置日期 {config_date} 已经是最新的，不需要更新。")
+        portfolios = query(INDEX_CODE)
+        fin.debug(f"查询到的配置数据:")
+        fin.debug(portfolios.data)
+        if portfolios is not None and portfolios.updated_at == config_date:
+            fin.info(f"配置日期 {config_date} 已经是最新的，不需要更新。")
         else:
             fin.info(f"配置日期 {config_date} 是最新的，可以更新。")
             portfolio = parse_portfolio(text, config_date)
-            save(INDEX_CODE, asdict(portfolio))
+            portfolio.date = config_date
+            portfolios.data.append(asdict(portfolio))
+            save(INDEX_CODE, portfolios.data, config_date)
             
             title = f'{INDEX_NAME}更新到{config_date}'
             fin.info(title)
