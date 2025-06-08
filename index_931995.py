@@ -103,7 +103,7 @@ def parse_pdf_text(file_name):
             raise PDFParseError("未找到符合格式的日期。")
         
         config_date = f"{match.group(1)}-{int(match.group(2)):02d}-{int(match.group(3)):02d}"
-        fin.info(f"找到配置日期: {config_date}")
+        fin.info(f"pdf中找到配置日期: {config_date}")
         return text, config_date
     finally:
         doc.close()
@@ -160,12 +160,16 @@ def get_config(slient=False):
         fin.info(f"解析的配置日期为: {config_date}")
         
         portfolios = query(INDEX_CODE)
-        fin.debug(f"查询到的配置数据:")
-        fin.debug(portfolios.data)
-        if portfolios is not None and portfolios.updated_at == config_date:
-            fin.info(f"配置日期 {config_date} 已经是最新的，不需要更新。")
+        if portfolios is None:
+            fin.info(f"没有查询到配置，创建新的配置: {portfolios}")
         else:
-            fin.info(f"配置日期 {config_date} 是最新的，可以更新。")
+            fin.info(f"查询到的配置日期为: {portfolios.updated_at.isoformat()}")
+            fin.debug(portfolios.data)
+        
+        if portfolios is not None and portfolios.updated_at.isoformat() == config_date:
+            fin.info(f"数据库配置 {portfolios.updated_at.isoformat()} 已经是最新的，不需要更新。")
+        else:
+            fin.info(f"PDF配置日期 {config_date} 是最新的，可以更新。")
             portfolio = parse_portfolio(text, config_date)
             portfolio.date = config_date
             portfolios.data.append(asdict(portfolio))
