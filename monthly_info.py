@@ -107,6 +107,20 @@ def update_monthly(filepath):
     df = pd.DataFrame([(k, *v) for k, v in macro_dict.items()], columns=['年月', 'CPI', 'PPI', 'PMI', 'M1同比', 'M2同比', 'M1-M2同比', '社零同比', '社融同比']) #, '居民杠杆', '非银杠杆', '政府杠杆'])
     df = df.sort_values('年月')
     print(df)
+    
+    
+    json_data = _get_data('931995')
+    sorted_data = sorted(json_data, key=lambda x: x['date'])
+    
+    latest_date_str = sorted_data[-1]['date']
+    latest_date = datetime.datetime.strptime(latest_date_str, '%Y-%m-%d')
+    today = datetime.datetime.today()
+    date_diff = abs((latest_date - today).days)
+
+    if date_diff <= 5:
+        fin.error("> 最新海通资产配置日期距离今天不超过5天：")
+        fin.info(sorted_data[-1])
+    
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
         df.to_excel(writer, sheet_name='宏观', index=False, header=True, startrow=0, startcol=0)
     
