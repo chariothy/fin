@@ -180,6 +180,10 @@ def get_fund_info():
                     continue
         if VALUE_DATE:
             sheet[f'{get_column_letter(VALUE+1)}1'] = f'净值({VALUE_DATE})'
+            
+        if '个金A' in wb.sheetnames:  # 检查 Sheet 是否存在
+            sheet_to_delete = wb['个金A']  # 获取 Sheet 对象
+            wb.remove(sheet_to_delete)    # 删除 Sheet
         wb.save(file_path)
     finally:
         wb.close()
