@@ -118,7 +118,7 @@ def update_monthly(filepath):
     date_diff = abs((latest_date - today).days)
 
     if date_diff <= 5:
-        fin.error("> 最新海通资产配置日期距离今天不超过5天：")
+        fin.warn("> 最新海通资产配置日期距离今天不超过5天：")
         fin.info(sorted_data[-1])
     
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:

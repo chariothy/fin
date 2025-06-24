@@ -92,7 +92,7 @@ def get_fund_info():
                     
             if fund_name:
                 if fund_name != name:
-                    fin.error(f"Line {row_idx}: 基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
+                    fin.warn(f"Line {row_idx}: 基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
                 #fin.debug(f"找到基金：{code} {name}")
                 
                 if not VALUE_DATE:
@@ -138,7 +138,7 @@ def get_fund_info():
                         if not (set(manager.split(' ')) & set(new_manager.split(' '))): ## 没有交集说明是不是加入搭档，更新管理时间
                             row[MANAGE_AT].value = today() 
                         if manager:
-                            fin.error(f"Line {row_idx}: 基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
+                            fin.warn(f"Line {row_idx}: 基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
                         
                     scale = basic_df[basic_df['item']=='最新规模'].iloc[0]['value']
                     scale = scale.replace("亿", "")
