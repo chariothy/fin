@@ -429,5 +429,32 @@ def sh300_fear_greed(slient=False):
         return title
     else:
         fin.ding(title,f'共{len(json_data)}行')
+        
+         
+@fin.retry(n=3, error=ConnectionError)
+def sh300_index(slient=False):
+    '''沪深300指数
+    '''    
+    name = 'SH300_INDEX'
+    if updated(name): return
+    
+    df = ak.stock_zh_index_daily_em(symbol="sh000300")
+    df.loc[:, 'date'] = df['date'].astype(str)
+    json_data = df[['date', 'close']] \
+        .replace(np.nan, None) \
+        .values \
+        .tolist()
+    
+    save(name, json_data)
+
+    last = df.iloc[-1]['date']
+    title = f'{name}更新到{last}'
+    fin.info(title)
+    if slient:
+        return title
+    else:
+        fin.ding(title,f'共{len(json_data)}行')
+    print(df)
+    
 if __name__ == "__main__":
     fire.Fire()

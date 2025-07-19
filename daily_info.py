@@ -10,15 +10,14 @@ five_years_ago = now.replace(year=now.year - 5)
 base_date = five_years_ago.strftime('%Y-%m-%d')
 
 macro_dict = {}
-items = [None, None, None, None, None, None, None, None]
+items = [None, None, None, None, None, None, None]
 BOND10_CN = 0
 BOND10_US = 1
 SHIBOR = 2
 FINANCING_BALANCE = 3
 MARGIN_BALANCE = 4
-SENTIMENT = 5
-HS300 = 6
-HS300PE = 7
+HS300 = 5
+HS300PE = 6
 
 
 def _get_index_value(code):
@@ -67,15 +66,13 @@ def update_daily(filepath):
             macro_dict[date][FINANCING_BALANCE] = f_balance
             macro_dict[date][MARGIN_BALANCE] = m_balance
     
-    json_data = _get_data('SENTIMENT')
+    json_data = _get_data('SH300_INDEX')
     for item in json_data:
         date = item[0]
-        sentiment = item[1]
-        hs300 = item[2]
+        hs300 = item[1]
         if date > base_date:
             if date not in macro_dict:
                 macro_dict[date] = items.copy()
-            macro_dict[date][SENTIMENT] = sentiment
             macro_dict[date][HS300] = hs300
             
     
@@ -88,7 +85,7 @@ def update_daily(filepath):
                 macro_dict[date] = items.copy()
             macro_dict[date][HS300PE] = float(pe)
 
-    df = pd.DataFrame([(k, *v) for k, v in macro_dict.items()], columns=['年月日', '中国10债', '美国10债', '同业拆借', '融资余额', '融券余额', '市场情绪', '沪深300点位', '沪深300PE'])
+    df = pd.DataFrame([(k, *v) for k, v in macro_dict.items()], columns=['年月日', '中国10债', '美国10债', '同业拆借', '融资余额', '融券余额', '沪深300点位', '沪深300PE'])
     df = df.sort_values('年月日')
     df['股债利差3%~6%'] = 100 / df['沪深300PE'] - df['中国10债']
     print(df)

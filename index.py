@@ -141,6 +141,7 @@ def value():
 
 
 def all(keyword=None, code=None):
+    print(keyword, code)
     df = ak.index_stock_info()
     print(df)
     if keyword:
