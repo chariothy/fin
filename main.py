@@ -14,7 +14,7 @@ if __name__ == "__main__":
             macro.pmi(slient=True),
             macro.money(slient=True),
             macro.retail(slient=True),
-            #macro.financing(slient=True), ## 融资余额从2025-07-23开始出现SSL错误
+            #macro.financing(slient=True), ## 社融从2025-07-23开始出现SSL错误
             macro.leverr(slient=True),
             macro.bond10(slient=True),
             macro.shibor(slient=True),
