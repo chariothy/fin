@@ -1,13 +1,15 @@
 import akshare as ak
 import openpyxl
 from openpyxl.utils import get_column_letter
-import datetime
+import datetime, time
 import shutil
 import pandas as pd
 from utils import fin
 from pybeans import today
 from monthly_info import update_monthly
 from daily_info import update_daily
+
+SLEEP_SECONDS = 0.5
 
 CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
 ANA_PERIODS = ('近1年', '近3年', '近5年', '近10年')
@@ -34,6 +36,27 @@ def set_value(ws_cell, df_cell, divider=100):
 
 
 def get_fund_info():
+    # 定义需要获取的基金类型列表
+    fund_types = ["股票型", "混合型", "债券型", "指数型", "QDII", "FOF"]
+
+    # 初始化空DataFrame存储合并结果
+    off_exchg_df = pd.DataFrame()
+
+    for fund_type in fund_types:
+        try:
+            # 分类型获取数据
+            df = ak.fund_open_fund_rank_em(symbol=fund_type)            
+            # 添加类型标识列
+            df["基金类型"] = fund_type            
+            # 合并数据
+            off_exchg_df = pd.concat([off_exchg_df, df], ignore_index=True)            
+            print(f"成功获取 {fund_type} 数据，总量: {len(df)}")
+            time.sleep(3)  # 防止请求过快触发反爬机制
+            
+        except Exception as e:
+            print(f"获取 {fund_type} 数据失败: {str(e)}")
+            # 失败后可加入重试逻辑
+
     current_date = datetime.datetime.now().strftime("%Y%m%d")
     file_path = fin['asset_config_path']
     file_path = file_path.replace('.xlsx', f'-{current_date}.xlsx')
@@ -43,12 +66,15 @@ def get_fund_info():
         print("文件被占用，请关闭后重试...")
         return
     
-    off_exchg_df = ak.fund_open_fund_rank_em(symbol="全部")
+    # off_exchg_df = ak.fund_open_fund_rank_em(symbol="混合型")
     fin.info(f'获取到场外基金数据{len(off_exchg_df)}条')
+    time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
     on_exchg_df = ak.fund_exchange_rank_em()
     fin.info(f'获取到场内基金数据{len(on_exchg_df)}条')
+    time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
     money_df = ak.fund_money_rank_em()
     fin.info(f'获取到货币基金数据{len(money_df)}条')
+    time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
     index_em_df = ak.fund_info_index_em(symbol="全部", indicator="全部")
     fin.info(f'获取到指数基金数据{len(index_em_df)}条')
     #print(df)
@@ -70,6 +96,7 @@ def get_fund_info():
             if not code:
                 continue
             
+            print(".", end='')
             result = off_exchg_df[off_exchg_df['基金代码'] == code]
             fund_name = ''
             if not result.empty:
@@ -115,6 +142,7 @@ def get_fund_info():
                 set_value(all_return_cell.offset(column=8), result.iloc[0]['今年来'])
                 
                 try:
+                    time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                     fee_df = ak.fund_individual_detail_info_xq(symbol=code)
                     last_sell_rule = fee_df[fee_df['费用类型'] == '卖出规则'].iloc[-1]
                     sale_fee = ''
@@ -130,6 +158,7 @@ def get_fund_info():
                     continue
                 
                 try:
+                    time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                     basic_df = ak.fund_individual_basic_info_xq(symbol=code)
                     row[FOUND_DATE].value = basic_df[basic_df['item']=='成立时间'].iloc[0]['value']
                     new_manager = basic_df[basic_df['item']=='基金经理'].iloc[0]['value']
@@ -152,6 +181,7 @@ def get_fund_info():
                 
                 if cate not in ('长债', '中债', '短债') and 'ETF' not in name and '指数' not in name and '联接' not in name:
                     try:
+                        time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                         ana_df = ak.fund_individual_analysis_xq(symbol=code)
                         for apn, apv in enumerate(ANA_PERIODS):
                             found_row = ana_df[ana_df['周期'] == apv]
@@ -164,6 +194,7 @@ def get_fund_info():
                         continue
             else:
                 try:
+                    time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
                     old_value = row[VALUE].value
                     new_value = hist_df.iloc[-1]['累计净值']
@@ -172,6 +203,7 @@ def get_fund_info():
                     if not VALUE_DATE:
                         VALUE_DATE = hist_df.iloc[-1]['净值日期']
                         fin.debug(f"净值日期：{VALUE_DATE}")
+                    time.sleep(1)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计收益率走势", period="成立来")
                     set_value(all_return_cell, hist_df.iloc[-1]['累计收益率'])
                 except Exception as ex:
