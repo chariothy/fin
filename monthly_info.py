@@ -2,7 +2,9 @@ import datetime, json
 from sqlalchemy import orm, Column, String, DATE, select
 import pandas as pd
 from macro import Macro
+import os
 from utils import fin
+from index_931995 import download_pdf
 
 now = datetime.datetime.now()
 ten_years_ago = now.replace(year=now.year - 10)
@@ -120,6 +122,8 @@ def update_monthly(filepath):
     if date_diff <= 5:
         fin.warn("> 最新海通资产配置日期距离今天不超过5天：")
         fin.info(sorted_data[-1])
+        filename = download_pdf(latest_date_str)
+        os.startfile(filename)
     
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
         df.to_excel(writer, sheet_name='宏观', index=False, header=True, startrow=0, startcol=0)

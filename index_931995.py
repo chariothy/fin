@@ -44,24 +44,25 @@ def format_ding(portfolio: Portfolio) -> str:
     return "\n".join(result)
 
 # 定义下载PDF文件的函数
-def download_pdf():
+def download_pdf(timestamp:str):
     # 定义PDF文件的URL和保存路径
     pdf_url = f'https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/{INDEX_CODE}factsheet.pdf'
     data_dir = 'data'
     pdf_name = f'{INDEX_CODE}factsheet'
     
-    # 获取当前日期
-    today = datetime.date.today().strftime("%Y-%m-%d")
+    if not timestamp:
+        # 获取当前日期
+        timestamp = datetime.date.today().strftime("%Y-%m-%d")
     
     # 列出data目录下以931995factsheet开头的PDF文件
     if os.path.exists(data_dir):
         for file in os.listdir(data_dir):
-            if file.startswith(pdf_name) and file.endswith(".pdf") and today in file:
-                fin.info(f"今天的文件 {file} 已存在，不再下载。")
+            if file.startswith(pdf_name) and file.endswith(".pdf") and timestamp in file:
+                fin.info(f"文件 {file} 已存在，不再下载。")
                 return file
     
     # 生成带时间戳的文件名
-    pdf_filename = f"{pdf_name}-{today}.pdf"
+    pdf_filename = f"{pdf_name}-{timestamp}.pdf"
     pdf_path = os.path.join(data_dir, pdf_filename)
 
     # 检查data目录是否存在，若不存在则创建
