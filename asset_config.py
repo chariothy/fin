@@ -7,6 +7,7 @@ import numpy as np
 
 # 1. 设置参数
 index_codes = ["931995", "930929", "931061", "931678"]
+index_names = ["国泰海通大类资产配置", "中证多资产风险平价指数", "中证时钟配置策略指数", "中证目标风险保守指数"]
 start_date = "20120130"
 end_date = datetime.datetime.now().strftime("%Y%m%d")  # 自动获取当前日期
 output_file = "指数数据.xlsx"
@@ -95,13 +96,13 @@ def merge_data():
     metrics_df = pd.DataFrame(
         results,
         columns=['年化收益率%', '波动率%', '夏普比率', '最大回撤%'],
-        index=index_codes
+        index=index_names
     )
     metrics_df = metrics_df.T
 
     current_date = datetime.datetime.now().strftime("%Y%m%d")
     output_file = fin['asset_config_path']
-    output_file = output_file.replace('.xlsx', f'-{current_date}.xlsx')
+    output_file = output_file.replace('.xlsx', f'-{current_date}-ac.xlsx')
     try:
         shutil.copyfile(fin['asset_config_path'], output_file)
     except PermissionError:
@@ -110,7 +111,7 @@ def merge_data():
     
     # 5. 导出到Excel
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-        metrics_df.to_excel(writer, sheet_name='配指', index=True, header=False)
+        metrics_df.to_excel(writer, sheet_name='配指', index=True)
         merged_df.to_excel(writer, sheet_name='配指', index=False, startrow=5)
         
     print(f"数据已成功导出到 {output_file}")
