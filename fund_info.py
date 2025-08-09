@@ -96,7 +96,7 @@ def get_fund_info():
             if not code:
                 continue
             
-            print(".", end='')
+            # print(".", end='')
             result = off_exchg_df[off_exchg_df['基金代码'] == code]
             fund_name = ''
             if not result.empty:

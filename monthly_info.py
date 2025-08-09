@@ -115,12 +115,13 @@ def update_monthly(filepath):
     sorted_data = sorted(json_data, key=lambda x: x['date'])
     
     latest_date_str = sorted_data[-1]['date']
+    fin.debug(f"> 最新国泰海通资产配置日期：{latest_date_str}")
     latest_date = datetime.datetime.strptime(latest_date_str, '%Y-%m-%d')
     today = datetime.datetime.today()
     date_diff = abs((latest_date - today).days)
 
     if date_diff <= 5:
-        fin.warn("> 最新海通资产配置日期距离今天不超过5天：")
+        fin.warn("> 最新国泰海通资产配置日期距离今天不超过5天：")
         fin.info(sorted_data[-1])
         filename = download_pdf(latest_date_str)
         os.startfile(filename)
