@@ -35,6 +35,14 @@ def set_value(ws_cell, df_cell, divider=100):
         ws_cell.value = df_cell / divider
 
 
+@fin.retry(n=3, error=Exception)
+def retry_get_type_fund(fund_type):
+    # 分类型获取数据
+    df = ak.fund_open_fund_rank_em(symbol=fund_type)
+    time.sleep(3)  # 防止请求过快触发反爬机制
+    return df
+
+
 def get_fund_info():
     # 定义需要获取的基金类型列表
     fund_types = ["股票型", "混合型", "债券型", "指数型", "QDII", "FOF"]
@@ -45,7 +53,7 @@ def get_fund_info():
     for fund_type in fund_types:
         try:
             # 分类型获取数据
-            df = ak.fund_open_fund_rank_em(symbol=fund_type)            
+            df = retry_get_type_fund(fund_type)            
             # 添加类型标识列
             df["基金类型"] = fund_type            
             # 合并数据
