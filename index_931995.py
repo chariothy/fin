@@ -44,7 +44,7 @@ def format_ding(portfolio: Portfolio) -> str:
     return "\n".join(result)
 
 # 定义下载PDF文件的函数
-def download_pdf(timestamp:str):
+def download_pdf(timestamp:str='') -> str:
     # 定义PDF文件的URL和保存路径
     pdf_url = f'https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/{INDEX_CODE}factsheet.pdf'
     data_dir = 'data'
