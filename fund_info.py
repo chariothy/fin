@@ -144,10 +144,10 @@ def get_fund_info():
                 set_value(all_return_cell.offset(column=2), result.iloc[0]['近1月'])
                 set_value(all_return_cell.offset(column=3), result.iloc[0]['近3月'])
                 set_value(all_return_cell.offset(column=4), result.iloc[0]['近6月'])
-                set_value(all_return_cell.offset(column=5), result.iloc[0]['近1年'])
-                set_value(all_return_cell.offset(column=6), result.iloc[0]['近2年'])
-                set_value(all_return_cell.offset(column=7), result.iloc[0]['近3年'])
-                set_value(all_return_cell.offset(column=8), result.iloc[0]['今年来'])
+                set_value(all_return_cell.offset(column=5), result.iloc[0]['今年来'])
+                set_value(all_return_cell.offset(column=6), result.iloc[0]['近1年'])
+                set_value(all_return_cell.offset(column=7), result.iloc[0]['近2年'])
+                set_value(all_return_cell.offset(column=8), result.iloc[0]['近3年'])
                 
                 try:
                     time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
