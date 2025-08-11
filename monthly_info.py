@@ -123,7 +123,7 @@ def update_monthly(filepath):
     if date_diff <= 5:
         fin.warn("> 最新国泰海通资产配置日期距离今天不超过5天：")
         fin.info(sorted_data[-1])
-        filename = download_pdf(latest_date_str)
+        filename = download_pdf()
         os.startfile(filename)
     
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:

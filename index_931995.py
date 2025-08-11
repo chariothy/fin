@@ -44,15 +44,14 @@ def format_ding(portfolio: Portfolio) -> str:
     return "\n".join(result)
 
 # 定义下载PDF文件的函数
-def download_pdf(timestamp:str='') -> str:
+def download_pdf() -> str:
     # 定义PDF文件的URL和保存路径
     pdf_url = f'https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/{INDEX_CODE}factsheet.pdf'
     data_dir = 'data'
     pdf_name = f'{INDEX_CODE}factsheet'
     
-    if not timestamp:
-        # 获取当前日期
-        timestamp = datetime.date.today().strftime("%Y-%m-%d")
+    # 获取当前日期
+    timestamp = datetime.date.today().strftime("%Y-%m-%d")
     
     # 列出data目录下以931995factsheet开头的PDF文件
     if os.path.exists(data_dir):
@@ -83,11 +82,11 @@ def download_pdf(timestamp:str='') -> str:
     return pdf_filename
 
 
-def parse_pdf_text(file_name):
-    if file_name is None:
+def parse_pdf_text(filename):
+    if filename is None:
         raise PDFParseError("没有有效的PDF文件可供解析。")
     data_dir = 'data'
-    pdf_path = os.path.join(data_dir, file_name)
+    pdf_path = os.path.join(data_dir, filename)
     doc = fitz.open(pdf_path)
     try:
         text = ""
@@ -105,9 +104,19 @@ def parse_pdf_text(file_name):
         
         config_date = f"{match.group(1)}-{int(match.group(2)):02d}-{int(match.group(3)):02d}"
         fin.info(f"pdf中找到配置日期: {config_date}")
+        
         return text, config_date
     finally:
         doc.close()
+        match = re.search(r'\d{4}-\d{2}-\d{2}', filename)
+        if match:
+            old_date = match.group()
+            new_filename = filename.replace(old_date, config_date)
+            new_filepath = os.path.join(data_dir, new_filename)
+            
+            # 重命名文件
+            os.rename(pdf_path, new_filepath)
+            fin.info(f"Renamed: {filename} -> {new_filename}")
 
 
 def parse_portfolio(text, config_date):
