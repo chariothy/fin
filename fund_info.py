@@ -2,12 +2,14 @@ import akshare as ak
 import openpyxl
 from openpyxl.utils import get_column_letter
 import datetime, time
-import shutil
+import shutil, os
 import pandas as pd
 from utils import fin
 from pybeans import today
 from monthly_info import update_monthly
 from daily_info import update_daily
+from asset_config import asset_config
+
 
 SLEEP_SECONDS = 0.5
 
@@ -60,7 +62,6 @@ def get_fund_info():
             off_exchg_df = pd.concat([off_exchg_df, df], ignore_index=True)            
             print(f"成功获取 {fund_type} 数据，总量: {len(df)}")
             time.sleep(3)  # 防止请求过快触发反爬机制
-            
         except Exception as e:
             print(f"获取 {fund_type} 数据失败: {str(e)}")
             # 失败后可加入重试逻辑
@@ -68,11 +69,13 @@ def get_fund_info():
     current_date = datetime.datetime.now().strftime("%Y%m%d")
     file_path = fin['asset_config_path']
     file_path = file_path.replace('.xlsx', f'-{current_date}.xlsx')
-    try:
-        shutil.copyfile(fin['asset_config_path'], file_path)
-    except PermissionError:
-        print("文件被占用，请关闭后重试...")
-        return
+    if not os.path.exists(file_path):
+        try:
+            shutil.copyfile(fin['asset_config_path'], file_path)
+            fin.info(f'已备份文件到{file_path}')
+        except PermissionError:
+            print("文件被占用，请关闭后重试...")
+            return
     
     # off_exchg_df = ak.fund_open_fund_rank_em(symbol="混合型")
     fin.info(f'获取到场外基金数据{len(off_exchg_df)}条')
@@ -233,6 +236,9 @@ def get_fund_info():
     
     fin.info(f"> 更新每日高频数据")
     update_daily(file_path)
+    
+    fin.info(f"> 更新资产配置数据")
+    asset_config(file_path)
 
 if __name__ == "__main__":
     try:

@@ -60,7 +60,7 @@ def calculate_metrics(price_series):
     ]
 
 
-def merge_data():
+def asset_config(filepath):
     # 3. 合并数据并日期对齐
     all_data = []
     for code in index_codes:
@@ -99,22 +99,14 @@ def merge_data():
         index=index_names
     )
     metrics_df = metrics_df.T
-
-    current_date = datetime.datetime.now().strftime("%Y%m%d")
-    output_file = fin['asset_config_path']
-    output_file = output_file.replace('.xlsx', f'-{current_date}-ac.xlsx')
-    try:
-        shutil.copyfile(fin['asset_config_path'], output_file)
-    except PermissionError:
-        print("文件被占用，请关闭后重试...")
-        return
     
     # 5. 导出到Excel
-    with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-        metrics_df.to_excel(writer, sheet_name='配指', index=True)
+    with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
         merged_df.to_excel(writer, sheet_name='配指', index=False, startrow=5)
+    with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+        metrics_df.to_excel(writer, sheet_name='配指', index=True)
         
-    print(f"数据已成功导出到 {output_file}")
+    print(f"数据已成功导出到 {filepath}")
     
 if __name__ == "__main__":
-    merge_data()
+    asset_config(r'C:\Users\Henry\OneDrive\henry\投资\资配系统-20250817.xlsx')
