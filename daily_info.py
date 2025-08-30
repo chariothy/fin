@@ -1,6 +1,7 @@
 import datetime, json
 from sqlalchemy import orm, Column, String, DATE, select
 import pandas as pd
+import requests
 from macro import Macro
 from index import IndexValue
 from utils import fin
@@ -10,14 +11,19 @@ five_years_ago = now.replace(year=now.year - 5)
 base_date = five_years_ago.strftime('%Y-%m-%d')
 
 macro_dict = {}
-items = [None, None, None, None, None, None]
+items = []
 BOND10_CN = 0
 BOND10_US = 1
 # SHIBOR = 2
 FINANCING_BALANCE = 2
 MARGIN_BALANCE = 3
-HS300 = 4
-HS300PE = 5
+BALANCE_PERCENTAGE = 4
+HS300 = 5
+HS300PE = 6
+
+for i in range(HS300PE + 1):
+    items.append(None)
+
 
 assert len(items) == HS300PE + 1
 
@@ -68,6 +74,19 @@ def update_daily(filepath):
             macro_dict[date][FINANCING_BALANCE] = f_balance
             macro_dict[date][MARGIN_BALANCE] = m_balance
     
+    url='https://www.jisilu.cn/data/idx_performance/stat_list/'
+    response = requests.get(url)
+    if response.ok:
+        data = response.json()
+        for row in data["rows"]:
+            date = row["id"]
+            margin_rate = row["cell"]['margin_rate']
+            if date > base_date:
+                if date not in macro_dict:
+                    macro_dict[date] = items.copy()
+                macro_dict[date][BALANCE_PERCENTAGE] = float(margin_rate) if margin_rate else None
+
+                
     json_data = _get_data('SH300_INDEX')
     for item in json_data:
         date = item[0]
@@ -75,8 +94,7 @@ def update_daily(filepath):
         if date > base_date:
             if date not in macro_dict:
                 macro_dict[date] = items.copy()
-            macro_dict[date][HS300] = hs300
-            
+            macro_dict[date][HS300] = hs300            
     
     index_values = _get_index_value('000300')
     for item in index_values:
@@ -85,10 +103,10 @@ def update_daily(filepath):
         if date > base_date:
             if date not in macro_dict:
                 macro_dict[date] = items.copy()
-            macro_dict[date][HS300PE] = float(pe)
+            macro_dict[date][HS300PE] = float(pe)            
 
     # fin.debug(macro_dict)
-    df = pd.DataFrame([(k, *v) for k, v in macro_dict.items()], columns=['年月日', '中国10债', '美国10债', '融资余额', '融券余额', '沪深300点位', '沪深300PE'])
+    df = pd.DataFrame([(k, *v) for k, v in macro_dict.items()], columns=['年月日', '中国10债', '美国10债', '融资余额', '融券余额', '余额占比', '沪深300点位', '沪深300PE'])
     df = df.sort_values('年月日')
     df['沪深300股息率'] = 100 / df['沪深300PE']
     df['股债利差3%~6%'] = df['沪深300股息率'] - df['中国10债']
