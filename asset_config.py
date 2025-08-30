@@ -6,9 +6,9 @@ import shutil
 import numpy as np
 
 # 1. 设置参数
-index_codes = ["931995", "930929", "931061", "931678"]
-index_names = ["国泰海通大类资产配置", "中证多资产风险平价指数", "中证时钟配置策略指数", "中证目标风险保守指数"]
-start_date = "20120130"
+index_codes = ["931995", "930929", "931678"]
+index_names = ["国泰海通大类资产配置", "中证多资产风险平价指数", "中证目标风险保守指数"]
+start_date = "20180102"
 end_date = datetime.datetime.now().strftime("%Y%m%d")  # 自动获取当前日期
 output_file = "指数数据.xlsx"
 
@@ -105,8 +105,8 @@ def asset_config(filepath):
         merged_df.to_excel(writer, sheet_name='配指', index=False, startrow=5)
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
         metrics_df.to_excel(writer, sheet_name='配指', index=True)
-        
+
     print(f"数据已成功导出到 {filepath}")
     
 if __name__ == "__main__":
-    asset_config(r'C:\Users\Henry\OneDrive\henry\投资\资配系统-20250817.xlsx')
+    asset_config(r'C:\Users\Henry\OneDrive\henry\投资\资配系统-20250829.xlsx')
