@@ -23,13 +23,14 @@ CATE = 2
 FOUND_DATE = 4
 VALUE = 5
 VOLATILITY = 6
-SCALE = 7
-SALE = 8
-FEE = 9
-MANAGER = 10
-MANAGE_AT = 11
-ALL_RETURN = 12
-ANA_START = 21
+VALUE_AT = 7
+SCALE = 8
+SALE = 9
+FEE = 10
+MANAGER = 11
+MANAGE_AT = 12
+ALL_RETURN = 13
+ANA_START = 22
 
 
 def set_value(ws_cell, df_cell, divider=100):
@@ -46,6 +47,20 @@ def retry_get_type_fund(fund_type):
 
 
 def get_fund_info():
+    current_date = datetime.datetime.now().strftime("%Y%m%d")
+    file_path = fin['asset_config_path']
+    file_path = file_path.replace('.xlsx', f'-{current_date}.xlsx')
+    if os.path.exists(file_path):
+        fin.error(f'文件{file_path}已存在，请备份后重新运行')
+        return
+            
+    try:
+        shutil.copyfile(fin['asset_config_path'], file_path)
+        fin.info(f'已备份文件到{file_path}')
+    except PermissionError:
+        print("文件被占用，请关闭后重试...")
+        return
+    
     # 定义需要获取的基金类型列表
     fund_types = ["股票型", "混合型", "债券型", "指数型", "QDII", "FOF"]
 
@@ -66,17 +81,6 @@ def get_fund_info():
             print(f"获取 {fund_type} 数据失败: {str(e)}")
             # 失败后可加入重试逻辑
 
-    current_date = datetime.datetime.now().strftime("%Y%m%d")
-    file_path = fin['asset_config_path']
-    file_path = file_path.replace('.xlsx', f'-{current_date}.xlsx')
-    if not os.path.exists(file_path):
-        try:
-            shutil.copyfile(fin['asset_config_path'], file_path)
-            fin.info(f'已备份文件到{file_path}')
-        except PermissionError:
-            print("文件被占用，请关闭后重试...")
-            return
-    
     # off_exchg_df = ak.fund_open_fund_rank_em(symbol="混合型")
     fin.info(f'获取到场外基金数据{len(off_exchg_df)}条')
     time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
@@ -101,6 +105,7 @@ def get_fund_info():
             code = row[CODE].value
             name = row[NAME].value
             cate = row[CATE].value
+            value_at = row[VALUE_AT].value
             manager = row[MANAGER].value
             all_return_cell = row[ALL_RETURN]
             
@@ -133,9 +138,11 @@ def get_fund_info():
                     fin.warn(f"Line {row_idx}: 基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
                 #fin.debug(f"找到基金：{code} {name}")
                 
-                if not VALUE_DATE:
-                    VALUE_DATE = result.iloc[0]['日期']
-                    fin.debug(f"净值日期：{VALUE_DATE}")
+                VALUE_DATE = result.iloc[0]['日期']                
+                if value_at != VALUE_DATE:
+                    row[VALUE_AT].value = VALUE_DATE
+                else: ## Updated
+                    continue
                     
                 old_value = row[VALUE].value
                 new_value = result.iloc[0]['单位净值']
@@ -210,10 +217,13 @@ def get_fund_info():
                     old_value = row[VALUE].value
                     new_value = hist_df.iloc[-1]['累计净值']
                     set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
-                    set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)
-                    if not VALUE_DATE:
-                        VALUE_DATE = hist_df.iloc[-1]['净值日期']
-                        fin.debug(f"净值日期：{VALUE_DATE}")
+                    set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)                        
+                    VALUE_DATE = hist_df.iloc[-1]['净值日期']       
+                    if value_at != VALUE_DATE:
+                        row[VALUE_AT].value = VALUE_DATE
+                    else: ## Updated
+                        continue
+                    
                     time.sleep(1)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计收益率走势", period="成立来")
                     set_value(all_return_cell, hist_df.iloc[-1]['累计收益率'])
@@ -221,12 +231,11 @@ def get_fund_info():
                     #raise ex
                     fin.info(f"Line {row_idx}: 收益信息获取失败 - 基金：{code} {name}， {str(ex)}")
                     continue
-        if VALUE_DATE:
-            sheet[f'{get_column_letter(VALUE+1)}1'] = f'净值({VALUE_DATE})'
             
         if '个金A' in wb.sheetnames:  # 检查 Sheet 是否存在
             sheet_to_delete = wb['个金A']  # 获取 Sheet 对象
-            wb.remove(sheet_to_delete)    # 删除 Sheet
+            wb.remove(sheet_to_delete)    # 删除 Sheet，因为pyexcel会出错
+
         wb.save(file_path)
     finally:
         wb.close()
