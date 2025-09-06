@@ -47,7 +47,7 @@ def retry_get_type_fund(fund_type):
 
 
 def get_fund_info():
-    current_date = datetime.datetime.now().strftime("%Y%m%d")
+    current_date = datetime.datetime.now().strftime("%Y%m%d%H")
     file_path = fin['asset_config_path']
     file_path = file_path.replace('.xlsx', f'-{current_date}.xlsx')
     if os.path.exists(file_path):
