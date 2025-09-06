@@ -2,7 +2,7 @@ import akshare as ak
 import openpyxl
 from openpyxl.utils import get_column_letter
 import datetime, time
-import shutil, os
+import shutil, os, sys
 import pandas as pd
 from utils import fin
 from pybeans import today
@@ -254,4 +254,5 @@ if __name__ == "__main__":
         get_fund_info()
     except Exception as ex:
         fin.ex(f"获取基金信息失败：{str(ex)}")
-    input('Press any key to quit')
+    if 'crontab' not in sys.argv:
+        input('Press any key to quit')

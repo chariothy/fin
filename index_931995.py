@@ -190,7 +190,7 @@ def get_config(slient=False):
             if slient:
                 return title
             else:
-                fin.ding(title,format_ding(portfolio))
+                fin.ding(title, format_ding(portfolio))
     except PDFDownloadError as e:
         fin.exception(e)
     except PDFParseError as e:
