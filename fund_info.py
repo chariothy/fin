@@ -214,15 +214,16 @@ def get_fund_info():
                 try:
                     time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
-                    old_value = row[VALUE].value
-                    new_value = hist_df.iloc[-1]['累计净值']
-                    set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
-                    set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)                        
                     VALUE_DATE = hist_df.iloc[-1]['净值日期']       
                     if value_at != VALUE_DATE:
                         row[VALUE_AT].value = VALUE_DATE
                     else: ## Updated
                         continue
+                    
+                    old_value = row[VALUE].value
+                    new_value = hist_df.iloc[-1]['累计净值']
+                    set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
+                    set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)
                     
                     time.sleep(1)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计收益率走势", period="成立来")
