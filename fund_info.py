@@ -16,6 +16,8 @@ SLEEP_SECONDS = 3 if 'crontab' in sys.argv else 0.5
 CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
 ANA_PERIODS = ('近1年', '近3年', '近5年', '近10年')
 ANA_VALUES = ('年化波动率', '年化夏普比率', '最大回撤')
+    
+VALUE_DATE = None
 
 CODE = 0
 NAME = 1
@@ -61,45 +63,61 @@ def get_fund_info():
         print("文件被占用，请关闭后重试...")
         return
     
-    # 定义需要获取的基金类型列表
-    fund_types = ["股票型", "混合型", "债券型", "指数型", "QDII", "FOF"]
-
-    # 初始化空DataFrame存储合并结果
-    off_exchg_df = pd.DataFrame()
-
-    for fund_type in fund_types:
-        try:
-            # 分类型获取数据
-            df = retry_get_type_fund(fund_type)            
-            # 添加类型标识列
-            df["基金类型"] = fund_type            
-            # 合并数据
-            off_exchg_df = pd.concat([off_exchg_df, df], ignore_index=True)            
-            print(f"成功获取 {fund_type} 数据，总量: {len(df)}")
-            time.sleep(3)  # 防止请求过快触发反爬机制
-        except Exception as e:
-            print(f"获取 {fund_type} 数据失败: {str(e)}")
-            # 失败后可加入重试逻辑
-
-    # off_exchg_df = ak.fund_open_fund_rank_em(symbol="混合型")
-    fin.info(f'获取到场外基金数据{len(off_exchg_df)}条')
-    time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
-    on_exchg_df = ak.fund_exchange_rank_em()
-    fin.info(f'获取到场内基金数据{len(on_exchg_df)}条')
-    time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
-    money_df = ak.fund_money_rank_em()
-    fin.info(f'获取到货币基金数据{len(money_df)}条')
-    time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
-    index_em_df = ak.fund_info_index_em(symbol="全部", indicator="全部")
-    fin.info(f'获取到指数基金数据{len(index_em_df)}条')
-    #print(df)
-    
-    VALUE_DATE = None
-    
     wb = openpyxl.load_workbook(file_path)
     try:
         sheet = wb['基金']
-        data = []
+        
+        # Check old value to avoid divide by zero        
+        for row_idx, row in enumerate(sheet.iter_rows(min_row=2), start=2):
+            #print(row)
+            code = row[CODE].value
+            name = row[NAME].value
+            cate = row[CATE].value
+            value_at = row[VALUE_AT].value
+            manager = row[MANAGER].value
+            all_return_cell = row[ALL_RETURN]
+            
+            if not code:
+                raise Exception(f'Line {row_idx}: 基金代码为空')
+                
+            old_value = row[VALUE].value
+            if not old_value:
+                raise Exception(f'Line {row_idx}: 基金净值为空')
+        
+        
+        # 定义需要获取的基金类型列表
+        fund_types = ["股票型", "混合型", "债券型", "指数型", "QDII", "FOF"]
+
+        # 初始化空DataFrame存储合并结果
+        off_exchg_df = pd.DataFrame()
+
+        for fund_type in fund_types:
+            try:
+                # 分类型获取数据
+                df = retry_get_type_fund(fund_type)            
+                # 添加类型标识列
+                df["基金类型"] = fund_type            
+                # 合并数据
+                off_exchg_df = pd.concat([off_exchg_df, df], ignore_index=True)            
+                print(f"成功获取 {fund_type} 数据，总量: {len(df)}")
+                time.sleep(3)  # 防止请求过快触发反爬机制
+            except Exception as e:
+                print(f"获取 {fund_type} 数据失败: {str(e)}")
+                # 失败后可加入重试逻辑
+
+        # off_exchg_df = ak.fund_open_fund_rank_em(symbol="混合型")
+        fin.info(f'获取到场外基金数据{len(off_exchg_df)}条')
+        time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
+        on_exchg_df = ak.fund_exchange_rank_em()
+        fin.info(f'获取到场内基金数据{len(on_exchg_df)}条')
+        time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
+        money_df = ak.fund_money_rank_em()
+        fin.info(f'获取到货币基金数据{len(money_df)}条')
+        time.sleep(6 * SLEEP_SECONDS)  # 防止请求过快触发反爬机制
+        index_em_df = ak.fund_info_index_em(symbol="全部", indicator="全部")
+        fin.info(f'获取到指数基金数据{len(index_em_df)}条')
+        #print(df)
+        
         for row_idx, row in enumerate(sheet.iter_rows(min_row=2), start=2):
             #print(row)
             code = row[CODE].value
@@ -255,5 +273,9 @@ if __name__ == "__main__":
         get_fund_info()
     except Exception as ex:
         fin.ex(f"获取基金信息失败：{str(ex)}")
-    if 'crontab' not in sys.argv:
+        
+    if 'crontab' in sys.argv:
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        fin.ding(f'获取{current_date}基金信息完成',f'净值日期{VALUE_DATE}')
+    else:
         input('Press any key to quit')
