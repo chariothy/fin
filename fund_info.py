@@ -11,7 +11,7 @@ from daily_info import update_daily
 from asset_config import asset_config
 
 
-SLEEP_SECONDS = 0.5
+SLEEP_SECONDS = 3 if 'crontab' in sys.argv else 0.5
 
 CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
 ANA_PERIODS = ('近1年', '近3年', '近5年', '近10年')
