@@ -17,6 +17,7 @@ CH_INT = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
 ANA_PERIODS = ('近1年', '近3年', '近5年', '近10年')
 ANA_VALUES = ('年化波动率', '年化夏普比率', '最大回撤')
     
+CRONTAB = 'crontab' in sys.argv
 VALUE_DATE = None
 
 CODE = 0
@@ -157,7 +158,7 @@ def get_fund_info():
                 #fin.debug(f"找到基金：{code} {name}")
                 
                 VALUE_DATE = result.iloc[0]['日期']                
-                if value_at != VALUE_DATE:
+                if CRONTAB or value_at != VALUE_DATE:
                     row[VALUE_AT].value = VALUE_DATE
                 else: ## Updated
                     continue
@@ -233,7 +234,7 @@ def get_fund_info():
                     time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
                     VALUE_DATE = hist_df.iloc[-1]['净值日期']       
-                    if value_at != VALUE_DATE:
+                    if CRONTAB or value_at != VALUE_DATE:
                         row[VALUE_AT].value = VALUE_DATE
                     else: ## Updated
                         continue
@@ -274,7 +275,7 @@ if __name__ == "__main__":
     except Exception as ex:
         fin.ex(f"获取基金信息失败：{str(ex)}")
         
-    if 'crontab' in sys.argv:
+    if CRONTAB:
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         fin.ding(f'获取{current_date}基金信息完成',f'净值日期{VALUE_DATE}')
     else:
