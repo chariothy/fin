@@ -19,6 +19,7 @@ ANA_VALUES = ('年化波动率', '年化夏普比率', '最大回撤')
     
 CRONTAB = 'crontab' in sys.argv
 VALUE_DATE = None
+TODAY = today()
 
 CODE = 0
 NAME = 1
@@ -131,6 +132,9 @@ def get_fund_info():
             if not code:
                 continue
             
+            if value_at == TODAY:
+                continue
+            
             # print(".", end='')
             result = off_exchg_df[off_exchg_df['基金代码'] == code]
             fund_name = ''
@@ -202,7 +206,7 @@ def get_fund_info():
                     if new_manager != manager:
                         row[MANAGER].value = new_manager
                         if not (set(manager.split(' ')) & set(new_manager.split(' '))): ## 没有交集说明是不是加入搭档，更新管理时间
-                            row[MANAGE_AT].value = today() 
+                            row[MANAGE_AT].value = TODAY 
                         if manager:
                             fin.warn(f"Line {row_idx}: 基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
                         
@@ -231,22 +235,23 @@ def get_fund_info():
                         continue
             else:
                 try:
-                    time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
                     VALUE_DATE = hist_df.iloc[-1]['净值日期']       
                     if CRONTAB or value_at != VALUE_DATE:
                         row[VALUE_AT].value = VALUE_DATE
                     else: ## Updated
                         continue
-                    
+
+                    time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
+                   
                     old_value = row[VALUE].value
                     new_value = hist_df.iloc[-1]['累计净值']
                     set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
                     set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)
                     
-                    time.sleep(1)  # 防止请求过快触发反爬机制
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计收益率走势", period="成立来")
                     set_value(all_return_cell, hist_df.iloc[-1]['累计收益率'])
+                    time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                 except Exception as ex:
                     #raise ex
                     fin.info(f"Line {row_idx}: 收益信息获取失败 - 基金：{code} {name}， {str(ex)}")
