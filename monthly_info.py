@@ -121,7 +121,10 @@ def update_monthly(filepath):
     
     if os.path.exists(filename):
         fin.warn(f"海通资产配置{latest_date_str}成功下载")
-        os.startfile(filename)
+        fin.ding(f'海通资产配置{latest_date_str}成功下载',f'文件路径：{filename}')
+        import sys
+        if 'crontab' not in sys.argv:
+            os.startfile(filename)
     
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
         df.to_excel(writer, sheet_name='宏观', index=False, header=True, startrow=0, startcol=0)

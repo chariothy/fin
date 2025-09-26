@@ -19,6 +19,7 @@ ANA_VALUES = ('年化波动率', '年化夏普比率', '最大回撤')
     
 CRONTAB = 'crontab' in sys.argv
 VALUE_DATE = None
+MESSAGES = []
 TODAY = today()
 
 CODE = 0
@@ -51,6 +52,8 @@ def retry_get_type_fund(fund_type):
 
 
 def get_fund_info():
+    global MESSAGES, VALUE_DATE
+    
     current_date = datetime.datetime.now().strftime("%Y%m%d%H")
     file_path = fin['asset_config_path']
     file_path = file_path.replace('.xlsx', f'-{current_date}.xlsx')
@@ -159,6 +162,8 @@ def get_fund_info():
             if fund_name:
                 if fund_name != name:
                     fin.warn(f"Line {row_idx}: 基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
+                    MESSAGES.append(f"Line {row_idx}: 基金名称变化 - 基金：{code}：{name} -> {fund_name}\n")
+                    
                 #fin.debug(f"找到基金：{code} {name}")
                 
                 VALUE_DATE = result.iloc[0]['日期']                
@@ -209,6 +214,7 @@ def get_fund_info():
                             row[MANAGE_AT].value = TODAY 
                         if manager:
                             fin.warn(f"Line {row_idx}: 基金经理发生变化 - 基金：{code} {name}：{manager} -> {new_manager}")
+                            MESSAGES.append(f"Line {row_idx}: 基金经理变化 - 基金：{code} {name}：{manager} -> {new_manager}\n")
                         
                     scale = basic_df[basic_df['item']=='最新规模'].iloc[0]['value']
                     scale = scale.replace("亿", "")
@@ -282,6 +288,7 @@ if __name__ == "__main__":
         
     if CRONTAB:
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        fin.ding(f'获取{current_date}基金信息完成',f'净值日期{VALUE_DATE}')
+        fin.ding(f'获取{current_date}基金信息完成',f'净值日期{VALUE_DATE}\n'+'\n'.join([f'- {r}' for r in MESSAGES]))
+        fin.info(f'获取{current_date}基金信息完成，净值日期{VALUE_DATE}\n'+'\n'.join([f'- {r}' for r in MESSAGES]))
     else:
         input('Press any key to quit')
