@@ -39,8 +39,11 @@ ANA_START = 22
 
 
 def set_value(ws_cell, df_cell, divider=100):
-    if not pd.isna(df_cell):
-        ws_cell.value = df_cell / divider
+    if isinstance(df_cell, str):
+        ws_cell.value = df_cell
+    else:
+        if not pd.isna(df_cell):
+            ws_cell.value = df_cell / divider
 
 
 @fin.retry(n=3, error=Exception)
@@ -175,7 +178,13 @@ def get_fund_info():
                 old_value = row[VALUE].value
                 new_value = result.iloc[0]['单位净值']
                 # fin.debug(f"更新基金：{code} {name}：{old_value} -> {new_value}")
-                set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
+                if '日增长率' in result.iloc[0]:
+                    volatility = result.iloc[0]['日增长率']
+                elif old_value > 0:
+                    volatility = (new_value - old_value) / old_value
+                else:
+                    volatility = 'N/A'
+                set_value(row[VOLATILITY], volatility, 1)
                 set_value(row[VALUE], new_value, 1)
                 set_value(all_return_cell, result.iloc[0]['成立来'])
                 set_value(all_return_cell.offset(column=1), result.iloc[0]['近1周'])
@@ -241,7 +250,7 @@ def get_fund_info():
                         continue
             else:
                 try:
-                    hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计净值走势")
+                    hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="单位净值走势")
                     VALUE_DATE = hist_df.iloc[-1]['净值日期']       
                     if CRONTAB or value_at != VALUE_DATE:
                         row[VALUE_AT].value = VALUE_DATE
@@ -250,9 +259,16 @@ def get_fund_info():
 
                     time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                    
-                    old_value = row[VALUE].value
-                    new_value = hist_df.iloc[-1]['累计净值']
-                    set_value(row[VOLATILITY], (new_value - old_value) / old_value, 1)
+                    volatility = hist_df.iloc[-1]['日增长率']
+                    if not volatility:
+                        old_value = row[VALUE].value
+                        new_value = hist_df.iloc[-1]['单位净值']
+                        if old_value > 0:
+                            volatility = (new_value - old_value) / old_value
+                        else:
+                            volatility = 'N/A'
+                   
+                    set_value(row[VOLATILITY], volatility, 1)
                     set_value(row[VALUE], hist_df.iloc[-1]['累计净值'], 1)
                     
                     hist_df = ak.fund_open_fund_info_em(symbol=code, indicator="累计收益率走势", period="成立来")
