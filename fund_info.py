@@ -179,7 +179,7 @@ def get_fund_info():
                 new_value = result.iloc[0]['单位净值']
                 # fin.debug(f"更新基金：{code} {name}：{old_value} -> {new_value}")
                 if '日增长率' in result.iloc[0]:
-                    volatility = result.iloc[0]['日增长率']
+                    volatility = result.iloc[0]['日增长率'] / 100
                 elif old_value > 0:
                     volatility = (new_value - old_value) / old_value
                 else:
@@ -259,7 +259,7 @@ def get_fund_info():
 
                     time.sleep(SLEEP_SECONDS)  # 防止请求过快触发反爬机制
                    
-                    volatility = hist_df.iloc[-1]['日增长率']
+                    volatility = hist_df.iloc[-1]['日增长率'] / 100
                     if not volatility:
                         old_value = row[VALUE].value
                         new_value = hist_df.iloc[-1]['单位净值']
