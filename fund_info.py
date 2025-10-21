@@ -304,7 +304,7 @@ if __name__ == "__main__":
         
     if CRONTAB:
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        fin.ding(f'获取{current_date}基金信息完成',f'净值日期{VALUE_DATE}\n'+'\n'.join([f'- {r}' for r in MESSAGES]))
-        fin.info(f'获取{current_date}基金信息完成，净值日期{VALUE_DATE}\n'+'\n'.join([f'- {r}' for r in MESSAGES]))
+        fin.ding(f'获取到{current_date}基金信息，{len(MESSAGES)}条提醒',f'净值日期{VALUE_DATE}\n'+'\n'.join([f'- {r}' for r in MESSAGES]))
+        fin.info(f'获取到{current_date}基金信息，{len(MESSAGES)}条需要注意，净值日期{VALUE_DATE}\n'+'\n'.join([f'- {r}' for r in MESSAGES]))
     else:
         input('Press any key to quit')
