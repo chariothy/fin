@@ -47,7 +47,7 @@ def format_ding(portfolio: Portfolio) -> str:
 def download_pdf() -> str:
     # 定义PDF文件的URL和保存路径
     pdf_url = f'https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/{INDEX_CODE}factsheet.pdf'
-    data_dir = 'data'
+    data_dir = f'data/{INDEX_CODE}'
     pdf_name = f'{INDEX_CODE}factsheet'
     
     # 获取当前日期
@@ -85,7 +85,7 @@ def download_pdf() -> str:
 def parse_pdf_text(filename):
     if filename is None:
         raise PDFParseError("没有有效的PDF文件可供解析。")
-    data_dir = 'data'
+    data_dir = f'data/{INDEX_CODE}'
     pdf_path = os.path.join(data_dir, filename)
     doc = fitz.open(pdf_path)
     try:
@@ -111,12 +111,17 @@ def parse_pdf_text(filename):
         match = re.search(r'\d{4}-\d{2}-\d{2}', filename)
         if match:
             old_date = match.group()
+            
             new_filename = filename.replace(old_date, config_date)
             new_filepath = os.path.join(data_dir, new_filename)
             
-            # 重命名文件
-            os.rename(pdf_path, new_filepath)
-            fin.info(f"Renamed: {filename} -> {new_filename}")
+            if new_filepath != pdf_path:
+                if os.path.exists(new_filepath):
+                    fin.info(f"文件 {config_date} 已经存在，删除{old_date}的文件。")
+                    os.remove(pdf_path)
+                else:
+                    os.rename(pdf_path, new_filepath)
+                    fin.info(f"文件 {pdf_path} 已重命名为 {new_filepath}。")
 
 
 def parse_portfolio(text, config_date):
