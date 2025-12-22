@@ -2,7 +2,7 @@ import datetime, json
 from sqlalchemy import orm, Column, String, DATE, select
 import pandas as pd
 from macro import Macro
-import os
+import os, sys
 from utils import fin
 from index_931995 import download_pdf
 
@@ -110,20 +110,18 @@ def update_monthly(filepath):
     df = df.sort_values('年月')
     print(df)    
     
-    json_data = _get_data('931995')
-    sorted_data = sorted(json_data, key=lambda x: x['date'])
-    
-    latest_date_str = sorted_data[-1]['date']
-    pdf_file = f'931995factsheet-{latest_date_str}.pdf'
-    if not os.path.exists(pdf_file):
-        fin.info(f"海通资产配置有更新：{latest_date_str}，尝试下载")
-        filename = download_pdf()
-    
-    if os.path.exists(filename):
-        fin.warn(f"海通资产配置{latest_date_str}成功下载")
-        fin.ding(f'海通资产配置{latest_date_str}成功下载',f'文件路径：{filename}')
-        import sys
-        if 'crontab' not in sys.argv:
+    if 'crontab' not in sys.argv: ## 在桌面端运行
+        json_data = _get_data('931995')
+        sorted_data = sorted(json_data, key=lambda x: x['date'])
+        latest_date_str = sorted_data[-1]['date']
+        pdf_file = f'931995factsheet-{latest_date_str}.pdf'
+        if not os.path.exists(pdf_file):
+            fin.info(f"海通资产配置有更新：{latest_date_str}，尝试下载")
+            filename = download_pdf()
+        
+        if os.path.exists(filename):
+            fin.warn(f"海通资产配置{latest_date_str}成功下载")
+            fin.ding(f'海通资产配置{latest_date_str}成功下载',f'文件路径：{filename}')
             os.startfile(filename)
     
     with pd.ExcelWriter(filepath, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
