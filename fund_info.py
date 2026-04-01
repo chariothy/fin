@@ -166,6 +166,7 @@ def get_fund_info():
                 if fund_name != name:
                     fin.warn(f"Line {row_idx}: 基金名称发生变化 - 基金：{code}：{name} -> {fund_name}")
                     MESSAGES.append(f"Line {row_idx}: 基金名称变化 - 基金：{code}：{name} -> {fund_name}\n")
+                    set_value(row[NAME], fund_name)
                     
                 #fin.debug(f"找到基金：{code} {name}")
                 
