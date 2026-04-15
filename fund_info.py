@@ -204,7 +204,7 @@ def get_fund_info():
                     sale_fee = ''
                     if last_sell_rule['费用'] > 0:
                         sale_fee = f'({last_sell_rule['费用']})'
-                    row[SALE].value = f'{last_sell_rule['条件或名称'].replace("持有期限", "").replace("<=", "")}{sale_fee}'
+                    row[SALE].value = f'{last_sell_rule['条件或名称'].replace("持有期限", "").replace("<=", "").replace(".0", "")}{sale_fee}'
                     other_fees_df = fee_df[fee_df['费用类型'] == '其他费用']
                     formula = "=(" + "+".join([str(fee) for fee in other_fees_df['费用']]) + ")/100"
                     row[FEE].value = formula
